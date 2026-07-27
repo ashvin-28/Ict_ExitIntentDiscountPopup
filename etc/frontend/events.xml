@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="ict_exitintent_popup_shown">
+        <observer name="ict_exitintent_send_coupon_email"
+                  instance="Ict\ExitIntentDiscountPopup\Observer\SendCouponEmail"/>
+    </event>
+</config>

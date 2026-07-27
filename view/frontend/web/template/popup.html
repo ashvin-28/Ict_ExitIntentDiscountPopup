@@ -1,0 +1,81 @@
+<div class="exit-intent-overlay"
+     data-bind="visible: isVisible,
+                click: onOverlayClick,
+                style: { backgroundColor: 'rgba(0,0,0,0.6)' }"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="exit-intent-heading"
+     aria-describedby="exit-intent-description">
+
+    <div class="exit-intent-popup"
+         data-bind="style: { backgroundColor: config.colors.background,
+                             color: config.colors.font }"
+         role="document">
+
+        <!-- Close (X) -->
+        <button class="exit-intent-close"
+                type="button"
+                data-bind="click: closePopup,
+                           style: { color: config.colors.font }"
+                aria-label="Close popup">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+        <!-- Heading -->
+        <h2 id="exit-intent-heading"
+            class="exit-intent-heading"
+            data-bind="text: config.popupHeading"></h2>
+
+        <!-- Description -->
+        <p id="exit-intent-description"
+           class="exit-intent-description"
+           data-bind="text: config.popupDescription"></p>
+
+        <!-- Coupon block -->
+        <div class="exit-intent-coupon-block">
+            <p class="exit-intent-discount-label"
+               data-bind="text: config.discountLabel"></p>
+
+            <div class="exit-intent-coupon-row">
+                <input class="exit-intent-coupon-code"
+                       type="text"
+                       readonly
+                       data-bind="value: config.couponCode"
+                       aria-label="Discount coupon code"
+                       aria-readonly="true"/>
+
+                <button class="exit-intent-copy-btn"
+                        type="button"
+                        data-bind="click: copyCode,
+                                   text: config.copyButtonText,
+                                   style: { backgroundColor: config.colors.button,
+                                            color: config.colors.buttonText }"
+                        aria-label="Copy coupon code to clipboard"></button>
+            </div>
+
+            <p class="exit-intent-copy-confirm"
+               data-bind="visible: isCopied"
+               aria-live="polite"
+               role="status">
+                Coupon code copied!
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="exit-intent-actions">
+            <button class="exit-intent-cta-btn"
+                    type="button"
+                    data-bind="click: placeOrderNow,
+                               text: config.ctaButtonText,
+                               style: { backgroundColor: config.colors.button,
+                                        color: config.colors.buttonText }"
+                    aria-label="Place your order now"></button>
+
+            <button class="exit-intent-secondary-btn"
+                    type="button"
+                    data-bind="click: closePopup,
+                               text: config.secondaryButtonText"
+                    aria-label="Continue shopping"></button>
+        </div>
+    </div>
+</div>

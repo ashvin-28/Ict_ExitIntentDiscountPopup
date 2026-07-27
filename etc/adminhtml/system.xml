@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="ict_extensions" translate="label" sortOrder="400">
+            <label>Ict Extensions</label>
+        </tab>
+
+        <section id="exitintentpopup" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Exit Intent Discount Popup</label>
+            <tab>ict_extensions</tab>
+            <resource>Ict_ExitIntentDiscountPopup::config</resource>
+
+            <!-- Group 1: Global Configuration -->
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Global Configuration</label>
+
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="mobile_delay" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mobile Delay (ms)</label>
+                    <validate>validate-number</validate>
+                </field>
+
+                <field id="popup_frequency" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Popup Frequency</label>
+                    <source_model>Ict\ExitIntentDiscountPopup\Model\Source\PopupFrequency</source_model>
+                </field>
+
+                <field id="background_color" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Background Color</label>
+                    <frontend_model>Ict\ExitIntentDiscountPopup\Block\Adminhtml\System\Config\Form\Field\ColorPicker</frontend_model>
+                </field>
+
+                <field id="font_color" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Font Color</label>
+                    <frontend_model>Ict\ExitIntentDiscountPopup\Block\Adminhtml\System\Config\Form\Field\ColorPicker</frontend_model>
+                </field>
+
+                <field id="button_color" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Button Color</label>
+                    <frontend_model>Ict\ExitIntentDiscountPopup\Block\Adminhtml\System\Config\Form\Field\ColorPicker</frontend_model>
+                </field>
+
+                <field id="button_text_color" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Button Text Color</label>
+                    <frontend_model>Ict\ExitIntentDiscountPopup\Block\Adminhtml\System\Config\Form\Field\ColorPicker</frontend_model>
+                </field>
+            </group>
+
+            <!-- Group 2: Promotion Configuration -->
+            <group id="promotion" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Promotion Configuration</label>
+
+                <field id="coupon_rule_id" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Coupon Rule</label>
+                    <source_model>Ict\ExitIntentDiscountPopup\Model\Source\CouponOptions</source_model>
+                </field>
+
+                <field id="copy_button_text" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Copy Button Text</label>
+                </field>
+
+                <field id="send_email_logged_in" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Email to Logged-In Customers</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+            <!-- Group 3: Popup Content -->
+            <group id="content" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Popup Content</label>
+
+                <field id="popup_heading" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Popup Heading</label>
+                </field>
+
+                <field id="popup_description" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Popup Description</label>
+                </field>
+
+                <field id="discount_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Discount Label</label>
+                </field>
+
+                <field id="cta_button_text" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CTA Button Text</label>
+                    <comment>Default: Place Order Now</comment>
+                </field>
+
+                <field id="secondary_button_text" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secondary Button Text</label>
+                    <comment>Default: Continue Shopping</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

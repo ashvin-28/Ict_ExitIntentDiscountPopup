@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="ict_exitintent" frontName="ict-exitintent">
+            <module name="Ict_ExitIntentDiscountPopup"/>
+        </route>
+        <route id="ict_exitintentdiscountpopup" frontName="ict-exitintentdiscountpopup">
+            <module name="Ict_ExitIntentDiscountPopup"/>
+        </route>
+    </router>
+</config>

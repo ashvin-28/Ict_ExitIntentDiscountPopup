@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Ict_ExitIntentDiscountPopup::css/popup.css"/>
+    </head>
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="exit.intent.discount.popup"
+                   template="Ict_ExitIntentDiscountPopup::popup.phtml"
+                   cacheable="false">
+                <arguments>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="exit-intent-popup" xsi:type="array">
+                                <item name="component" xsi:type="string">Ict_ExitIntentDiscountPopup/js/exit-intent-popup</item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

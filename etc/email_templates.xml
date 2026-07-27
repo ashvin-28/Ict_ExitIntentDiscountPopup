@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="exit_intent_popup_coupon_email"
+              label="Exit Intent Popup — Coupon Code"
+              file="coupon_code.html"
+              type="html"
+              module="Ict_ExitIntentDiscountPopup"
+              area="frontend"/>
+</config>
