@@ -1,27 +1,16 @@
 define([
     'uiComponent',
     'ko',
+    'jquery',
     'Magento_Checkout/js/model/step-navigator'
-], function (Component, ko, stepNavigator) {
+], function (Component, ko, $, stepNavigator) {
     'use strict';
 
     var MOBILE_BREAKPOINT = 768;
     var THROTTLE_MS       = 200;
     var COPY_RESET_MS     = 3000;
     var PAYMENT_STEP_CODE = 'payment';
-
-    // =========================================================================
-    // Single suppression mechanism: sessionStorage, scoped to ruleId.
-    //
-    // Set inside closePopup() when the popup is dismissed by ANY method
-    // (X, ESC, overlay click, Place Order Now, or after Copy Code).
-    //
-    // Only active when popupFrequency === 'once_per_session'.
-    // Cleared automatically when the browser tab closes.
-    // Never written on show/trigger — only on close.
-    //
-    // When popupFrequency === 'always': flag is never read or written.
-    // =========================================================================
+    var EMAIL_REGEX       = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function sessionShownKey(ruleId) {
         return 'ictExitPopupSessionShown_' + ruleId;
@@ -45,6 +34,7 @@ define([
         },
 
         config:             {},
+        popupEnabled:       null,
         isVisible:          null,
         isCopied:           null,
         _isPaymentStep:     null,
@@ -54,10 +44,22 @@ define([
             this._super();
 
             this.config         = window.checkoutConfig.exitIntentPopup || {};
+            this.popupEnabled   = ko.observable(!!this.config.enabled);
             this.isVisible      = ko.observable(false);
             this.isCopied       = ko.observable(false);
             this._isPaymentStep = ko.observable(false);
 
+            // ruleId must exist for any functionality to make sense.
+            if (!this.config.ruleId) {
+                return this;
+            }
+
+            // Email blur check runs always (even if server said enabled:false at
+            // page-load time due to missing quote email) so we can do a runtime
+            // re-evaluation once the guest types their email.
+            this._attachEmailBlurCheck();
+
+            // Exit-intent listeners and keyboard handler only arm when enabled.
             if (this.config.enabled) {
                 this._watchPaymentStep();
                 document.addEventListener('keydown', this._onKeyDown.bind(this));
@@ -67,20 +69,61 @@ define([
         },
 
         // ================================================================== //
+        // Runtime guest-usage check via email blur
+        // ================================================================== //
+
+        _attachEmailBlurCheck: function () {
+            var self = this;
+
+            // Delegated — #customer-email is rendered asynchronously by Knockout.
+            $(document).on('blur', '#customer-email', function () {
+                var email = $.trim($(this).val());
+
+                if (!email || !EMAIL_REGEX.test(email)) {
+                    return;
+                }
+
+                $.ajax({
+                    url:         window.BASE_URL + 'ict-exitintent/index/checkguestusage',
+                    type:        'POST',
+                    contentType: 'application/json',
+                    data:        JSON.stringify({ email: email }),
+                    success: function (response) {
+                        if (response && response.used === true) {
+                            // Coupon already used by this email — disable permanently
+                            // for this page session and close popup if open.
+                            self.popupEnabled(false);
+                            if (self.isVisible()) {
+                                self.closePopup();
+                            }
+                        } else {
+                            // Not used — re-enable if server had disabled it only
+                            // because quote email was unknown at page load.
+                            // Only re-enable when the original config says the
+                            // coupon is otherwise valid (enabled was true before
+                            // the guest-email gate could run).
+                            if (self.config.enabled && !self.popupEnabled()) {
+                                self.popupEnabled(true);
+                                // Arm exit-intent listeners now if not already done.
+                                self._watchPaymentStep();
+                                document.addEventListener('keydown', self._onKeyDown.bind(self));
+                            }
+                        }
+                    }
+                    // No error handler — fail-open.
+                });
+            });
+        },
+
+        // ================================================================== //
         // Session-frequency gate
         // ================================================================== //
 
-        /** True only when frequency = once_per_session AND already shown this tab. */
         _shownThisSession: function () {
             return this.config.popupFrequency !== 'always' &&
                    !!sessionStorage.getItem(sessionShownKey(this.config.ruleId));
         },
 
-        /**
-         * Called ONLY from closePopup().
-         * Marks this session so the popup does not re-trigger while the tab is open.
-         * No-op when popupFrequency === 'always'.
-         */
         _markShownThisSession: function () {
             if (this.config.popupFrequency === 'always') {
                 return;
@@ -161,10 +204,13 @@ define([
         },
 
         // ================================================================== //
-        // Trigger — no storage writes
+        // Trigger — reads popupEnabled() observable
         // ================================================================== //
 
         _trigger: function () {
+            if (!this.popupEnabled()) {
+                return;
+            }
             if (!this._isPaymentStep()) {
                 return;
             }
@@ -180,7 +226,7 @@ define([
         },
 
         // ================================================================== //
-        // Server notification for email (unchanged)
+        // Server notification
         // ================================================================== //
 
         _notifyServer: function () {
@@ -196,7 +242,7 @@ define([
         },
 
         // ================================================================== //
-        // Keyboard / overlay — no storage writes
+        // Keyboard / overlay
         // ================================================================== //
 
         _onKeyDown: function (e) {
@@ -213,7 +259,7 @@ define([
         },
 
         // ================================================================== //
-        // copyCode — clipboard write + confirmation only, nothing else
+        // copyCode — clipboard only
         // ================================================================== //
 
         copyCode: function () {
@@ -254,7 +300,7 @@ define([
         },
 
         // ================================================================== //
-        // closePopup — sets session-frequency flag, nothing permanent
+        // closePopup
         // ================================================================== //
 
         closePopup: function () {
