@@ -5,4 +5,8 @@
         <observer name="ict_exitintent_record_guest_coupon_usage"
                   instance="Ict\ExitIntentDiscountPopup\Observer\RecordGuestCouponUsage"/>
     </event>
+    <event name="sales_quote_collect_totals_before">
+        <observer name="ict_exitintent_strip_reused_coupon_on_totals"
+                  instance="Ict\ExitIntentDiscountPopup\Observer\StripReusedCouponOnTotals"/>
+    </event>
 </config>

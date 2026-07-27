@@ -2,8 +2,11 @@ define([
     'uiComponent',
     'ko',
     'jquery',
-    'Magento_Checkout/js/model/step-navigator'
-], function (Component, ko, $, stepNavigator) {
+    'Magento_Checkout/js/model/step-navigator',
+    'Magento_Checkout/js/model/quote',
+    'mage/storage',
+    'Magento_Checkout/js/model/url-builder'
+], function (Component, ko, $, stepNavigator, quote, storage, urlBuilder) {
     'use strict';
 
     var MOBILE_BREAKPOINT = 768;
@@ -76,7 +79,8 @@ define([
             var self = this;
 
             // Delegated — #customer-email is rendered asynchronously by Knockout.
-            $(document).on('blur', '#customer-email', function () {
+            // Both blur and change cover tab-away and autofill scenarios.
+            $(document).on('blur change', '#customer-email', function () {
                 var email = $.trim($(this).val());
 
                 if (!email || !EMAIL_REGEX.test(email)) {
@@ -90,21 +94,17 @@ define([
                     data:        JSON.stringify({ email: email }),
                     success: function (response) {
                         if (response && response.used === true) {
-                            // Coupon already used by this email — disable permanently
-                            // for this page session and close popup if open.
                             self.popupEnabled(false);
                             if (self.isVisible()) {
                                 self.closePopup();
                             }
+                            // If a coupon is already applied on the cart, remove it
+                            // now so the discount disappears from the order summary
+                            // immediately without waiting for the server backstop.
+                            self._removeCouponIfApplied();
                         } else {
-                            // Not used — re-enable if server had disabled it only
-                            // because quote email was unknown at page load.
-                            // Only re-enable when the original config says the
-                            // coupon is otherwise valid (enabled was true before
-                            // the guest-email gate could run).
                             if (self.config.enabled && !self.popupEnabled()) {
                                 self.popupEnabled(true);
-                                // Arm exit-intent listeners now if not already done.
                                 self._watchPaymentStep();
                                 document.addEventListener('keydown', self._onKeyDown.bind(self));
                             }
@@ -114,6 +114,37 @@ define([
                 });
             });
         },
+
+        /**
+         * Calls Magento's REST DELETE /V1/guest-carts/:cartId/coupons endpoint
+         * if the current quote already has a coupon applied.
+         * This is a best-effort UX call — the server-side observer is the hard
+         * enforcement backstop and will strip the coupon even if this fails.
+         */
+        _removeCouponIfApplied: function () {
+            var totalsData = quote.getTotals()();
+            if (!totalsData || !totalsData.coupon_code) {
+                return;
+            }
+
+            var quoteId = quote.getQuoteId();
+            if (!quoteId) {
+                return;
+            }
+
+            // Guest cart coupon removal: DELETE /V1/guest-carts/:cartId/coupons
+            storage.delete(
+                urlBuilder.createUrl('/guest-carts/:cartId/coupons', { cartId: quoteId })
+            ).done(function () {
+                // Force totals re-load so the discount line disappears from the UI.
+                var totalsService = require('Magento_Checkout/js/model/totals');
+                if (totalsService && typeof totalsService.isLoading === 'function') {
+                    // Trigger a totals reload by dispatching a cart update.
+                    require('Magento_Checkout/js/action/get-totals')(['']);
+                }
+            }).fail(function () { /* fail-open — server backstop will enforce */ });
+        },
+
 
         // ================================================================== //
         // Session-frequency gate
