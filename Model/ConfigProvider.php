@@ -4,43 +4,41 @@ declare(strict_types=1);
 
 namespace Ict\ExitIntentDiscountPopup\Model;
 
-use Ict\ExitIntentDiscountPopup\Model\ResourceModel\CouponCopied;
+use Ict\ExitIntentDiscountPopup\Model\ResourceModel\GuestCouponUsage;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\SalesRule\Api\RuleRepositoryInterface;
 use Magento\SalesRule\Model\RuleFactory;
 
 class ConfigProvider implements ConfigProviderInterface
 {
     public function __construct(
-        private readonly Config                  $config,
-        private readonly CouponValidator         $couponValidator,
-        private readonly RuleRepositoryInterface $ruleRepository,
-        private readonly RuleFactory             $ruleFactory,
-        private readonly CustomerSession         $customerSession,
-        private readonly CouponCopied            $couponCopied
+        private readonly Config              $config,
+        private readonly CouponValidator     $couponValidator,
+        private readonly RuleFactory         $ruleFactory,
+        private readonly CustomerSession     $customerSession,
+        private readonly CheckoutSession     $checkoutSession,
+        private readonly ResourceConnection  $resource,
+        private readonly GuestCouponUsage    $guestCouponUsage
     ) {}
 
     public function getConfig(): array
     {
         $ruleId  = $this->config->getCouponRuleId();
-        $enabled = $this->config->isEnabled()
-            && $ruleId
-            && $this->couponValidator->isValid($ruleId)
-            && !$this->customerHasAlreadyCopied($ruleId);
+        $isValid = $ruleId && $this->couponValidator->isValid($ruleId);
 
-        $couponCode = $enabled ? $this->resolveCouponCode($ruleId) : null;
-
-        // If the code could not be resolved, disable the popup.
-        if ($enabled && $couponCode === null) {
-            $enabled = false;
+        // Hard gate: coupon already redeemed by this customer/guest.
+        if ($isValid && $this->couponAlreadyRedeemed($ruleId)) {
+            $isValid = false;
         }
+
+        $couponCode = $isValid ? $this->resolveCouponCode($ruleId) : null;
 
         return [
             'exitIntentPopup' => [
-                'enabled'             => $enabled,
-                'ruleId'              => $ruleId,   // exposed so JS can scope the localStorage key
+                'enabled'             => $this->config->isEnabled() && $isValid && $couponCode !== null,
                 'mobileDelay'         => $this->config->getMobileDelay(),
                 'popupFrequency'      => $this->config->getPopupFrequency(),
                 'colors'              => [
@@ -49,6 +47,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'button'     => $this->config->getButtonColor(),
                     'buttonText' => $this->config->getButtonTextColor(),
                 ],
+                'ruleId'              => $ruleId,
                 'couponCode'          => $couponCode,
                 'copyButtonText'      => $this->config->getCopyButtonText(),
                 'popupHeading'        => $this->config->getPopupHeading(),
@@ -56,25 +55,70 @@ class ConfigProvider implements ConfigProviderInterface
                 'discountLabel'       => $this->config->getDiscountLabel(),
                 'ctaButtonText'       => $this->config->getCtaButtonText(),
                 'secondaryButtonText' => $this->config->getSecondaryButtonText(),
-                'isLoggedIn'          => $this->customerSession->isLoggedIn(),
             ],
         ];
     }
 
-    /**
-     * Returns true if the logged-in customer has already copied this coupon.
-     * Always false for guests (no server-side identity).
-     */
-    private function customerHasAlreadyCopied(int $ruleId): bool
+    // -------------------------------------------------------------------------
+    // Redemption gate — returns true if the coupon has already been used
+    // -------------------------------------------------------------------------
+
+    private function couponAlreadyRedeemed(int $ruleId): bool
     {
-        if (!$this->customerSession->isLoggedIn()) {
+        if ($this->customerSession->isLoggedIn()) {
+            return $this->loggedInCustomerHasRedeemed($ruleId);
+        }
+
+        return $this->guestHasRedeemed($ruleId);
+    }
+
+    /**
+     * Logged-in: query native salesrule_coupon_usage joined to salesrule_coupon
+     * to find a times_used >= 1 record for this customer + rule.
+     */
+    private function loggedInCustomerHasRedeemed(int $ruleId): bool
+    {
+        $customerId = (int) $this->customerSession->getCustomerId();
+        if ($customerId <= 0) {
             return false;
         }
 
-        $customerId = (int) $this->customerSession->getCustomerId();
+        $connection  = $this->resource->getConnection();
+        $usageTable  = $this->resource->getTableName('salesrule_coupon_usage');
+        $couponTable = $this->resource->getTableName('salesrule_coupon');
 
-        return $customerId > 0 && $this->couponCopied->hasCopied($customerId, $ruleId);
+        $select = $connection->select()
+            ->from(['u' => $usageTable], ['times_used'])
+            ->join(['c' => $couponTable], 'u.coupon_id = c.coupon_id', [])
+            ->where('c.rule_id = ?', $ruleId)
+            ->where('u.customer_id = ?', $customerId)
+            ->where('u.times_used >= 1')
+            ->limit(1);
+
+        return (bool) $connection->fetchOne($select);
     }
+
+    /**
+     * Guest: check the custom table using the quote's email address.
+     * If no email is available yet (before shipping step), returns false
+     * so the popup is not suppressed prematurely.
+     */
+    private function guestHasRedeemed(int $ruleId): bool
+    {
+        try {
+            $email = (string) $this->checkoutSession->getQuote()->getCustomerEmail();
+        } catch (\Exception) {
+            return false;
+        }
+
+        if ($email === '') {
+            return false;
+        }
+
+        return $this->guestCouponUsage->hasUsed($email, $ruleId);
+    }
+
+    // -------------------------------------------------------------------------
 
     private function resolveCouponCode(int $ruleId): ?string
     {

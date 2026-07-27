@@ -6,37 +6,36 @@ namespace Ict\ExitIntentDiscountPopup\Model\ResourceModel;
 
 use Magento\Framework\App\ResourceConnection;
 
-class CouponCopied
+class GuestCouponUsage
 {
-    private const TABLE = 'ict_exitintent_coupon_copied';
+    private const TABLE = 'ict_exitintent_guest_coupon_usage';
 
     public function __construct(
         private readonly ResourceConnection $resource
     ) {}
 
-    public function hasCopied(int $customerId, int $ruleId): bool
+    public function hasUsed(string $email, int $ruleId): bool
     {
         $connection = $this->resource->getConnection();
         $table      = $this->resource->getTableName(self::TABLE);
 
         $select = $connection->select()
-            ->from($table, ['id'])
-            ->where('customer_id = ?', $customerId)
+            ->from($table, ['entity_id'])
+            ->where('email = ?', strtolower(trim($email)))
             ->where('rule_id = ?', $ruleId)
             ->limit(1);
 
         return (bool) $connection->fetchOne($select);
     }
 
-    public function markCopied(int $customerId, int $ruleId): void
+    public function record(string $email, int $ruleId, int $orderId): void
     {
         $connection = $this->resource->getConnection();
         $table      = $this->resource->getTableName(self::TABLE);
 
-        // INSERT IGNORE so concurrent requests don't throw on the unique key
-        $connection->insertIgnore($table, [
-            'customer_id' => $customerId,
-            'rule_id'     => $ruleId,
-        ]);
+        $connection->query(
+            'INSERT IGNORE INTO ' . $table . ' (email, rule_id, order_id) VALUES (?, ?, ?)',
+            [strtolower(trim($email)), $ruleId, $orderId]
+        );
     }
 }

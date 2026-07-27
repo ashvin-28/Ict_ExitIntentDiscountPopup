@@ -1,28 +1,24 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-    <table name="ict_exitintent_coupon_copied"
+    <table name="ict_exitintent_guest_coupon_usage"
            resource="default"
            engine="innodb"
-           comment="Exit Intent Popup — coupon codes copied by logged-in customers">
+           comment="Exit Intent Popup — coupon redemption records for guest orders">
 
-        <column xsi:type="int"       name="id"          unsigned="true" nullable="false" identity="true" comment="Primary Key"/>
-        <column xsi:type="int"       name="customer_id"  unsigned="true" nullable="false" identity="false" comment="Customer Entity ID"/>
-        <column xsi:type="int"       name="rule_id"      unsigned="true" nullable="false" identity="false" comment="SalesRule Rule ID"/>
-        <column xsi:type="timestamp" name="copied_at"    nullable="false" default="CURRENT_TIMESTAMP"      comment="Timestamp of copy action"/>
+        <column xsi:type="int"       name="entity_id" unsigned="true"  nullable="false" identity="true"  comment="Primary Key"/>
+        <column xsi:type="varchar"   name="email"     length="255"     nullable="false"                  comment="Guest customer email"/>
+        <column xsi:type="int"       name="rule_id"   unsigned="true"  nullable="false" identity="false" comment="SalesRule Rule ID"/>
+        <column xsi:type="int"       name="order_id"  unsigned="true"  nullable="false" identity="false" comment="Sales Order Entity ID"/>
+        <column xsi:type="timestamp" name="used_at"   nullable="false" default="CURRENT_TIMESTAMP"       comment="Order placement timestamp"/>
 
         <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="id"/>
+            <column name="entity_id"/>
         </constraint>
 
-        <!-- One record per customer+rule — prevents duplicate inserts -->
-        <constraint xsi:type="unique" referenceId="ICT_EXITINTENT_COUPON_COPIED_CUSTOMER_RULE">
-            <column name="customer_id"/>
+        <constraint xsi:type="unique" referenceId="ICT_EXITINTENT_GUEST_COUPON_USAGE_EMAIL_RULE_ID">
+            <column name="email"/>
             <column name="rule_id"/>
         </constraint>
-
-        <index referenceId="ICT_EXITINTENT_COUPON_COPIED_CUSTOMER_ID" indexType="btree">
-            <column name="customer_id"/>
-        </index>
     </table>
 </schema>
