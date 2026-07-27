@@ -4,14 +4,14 @@
    ========================================================================== */
 
 :root {
-    --eip-bg:          #ffffff;
-    --eip-font:        #333333;
-    --eip-btn-bg:      #e02b27;
-    --eip-btn-text:    #ffffff;
-    --eip-radius:      12px;
-    --eip-shadow:      0 8px 40px rgba(0, 0, 0, 0.18);
-    --eip-overlay-z:   9999;
-    --eip-transition:  0.25s ease;
+    --eip-bg:         #ffffff;
+    --eip-font:       #1a1a1a;
+    --eip-btn-bg:     #e02b27;
+    --eip-btn-text:   #ffffff;
+    --eip-radius:     12px;
+    --eip-shadow:     0 20px 60px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.10);
+    --eip-overlay-z:  9999;
+    --eip-transition: 0.22s ease;
 }
 
 /* --------------------------------------------------------------------------
@@ -24,11 +24,10 @@
     display:         flex;
     align-items:     center;
     justify-content: center;
-    background:      rgba(0, 0, 0, 0.6);
+    background:      rgba(0, 0, 0, 0.55);
     z-index:         var(--eip-overlay-z);
-    padding:         1rem;
+    padding:         1.5rem;
     box-sizing:      border-box;
-    /* KO visible binding toggles display; we animate opacity instead */
     animation:       eipFadeIn var(--eip-transition) forwards;
 }
 
@@ -47,16 +46,16 @@
     color:         var(--eip-font);
     border-radius: var(--eip-radius);
     box-shadow:    var(--eip-shadow);
-    padding:       2.5rem 2rem 2rem;
+    padding:       2.75rem 2.25rem 2.25rem;
     width:         100%;
-    max-width:     520px;
+    max-width:     480px;
     box-sizing:    border-box;
     text-align:    center;
     animation:     eipSlideUp var(--eip-transition) forwards;
 }
 
 @keyframes eipSlideUp {
-    from { transform: translateY(24px); opacity: 0; }
+    from { transform: translateY(20px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
 }
 
@@ -65,24 +64,49 @@
    -------------------------------------------------------------------------- */
 
 .exit-intent-close {
-    position:   absolute;
-    top:        0.75rem;
-    right:      0.75rem;
-    background: transparent;
-    border:     none;
-    cursor:     pointer;
-    font-size:  1.5rem;
-    line-height: 1;
-    color:      inherit;
-    padding:    0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: opacity var(--eip-transition);
+    position:      absolute;
+    top:           0.875rem;
+    right:         0.875rem;
+    width:         2rem;
+    height:        2rem;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    background:    transparent;
+    border:        none;
+    cursor:        pointer;
+    font-size:     1.375rem;
+    line-height:   1;
+    color:         inherit;
+    border-radius: 50%;
+    opacity:       0.45;
+    transition:    opacity var(--eip-transition), background var(--eip-transition);
+    padding:       0;
 }
 
 .exit-intent-close:hover,
 .exit-intent-close:focus {
-    opacity: 0.7;
-    outline: 2px solid currentColor;
+    opacity:    0.9;
+    background: rgba(0, 0, 0, 0.07);
+    outline:    none;
+}
+
+/* --------------------------------------------------------------------------
+   Badge
+   -------------------------------------------------------------------------- */
+
+.exit-intent-badge {
+    display:        inline-block;
+    margin-bottom:  1rem;
+    padding:        0.3rem 0.875rem;
+    background:     var(--eip-btn-bg);
+    color:          var(--eip-btn-text);
+    border-radius:  100px;
+    font-size:      0.6875rem;
+    font-weight:    700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height:    1;
 }
 
 /* --------------------------------------------------------------------------
@@ -90,17 +114,18 @@
    -------------------------------------------------------------------------- */
 
 .exit-intent-heading {
-    margin:      0 0 0.75rem;
-    font-size:   1.5rem;
-    font-weight: 700;
+    margin:      0 0 0.875rem;
+    font-size:   1.625rem;
+    font-weight: 800;
     line-height: 1.2;
+    letter-spacing: -0.01em;
 }
 
 .exit-intent-description {
-    margin:      0 0 1.5rem;
-    font-size:   1rem;
-    line-height: 1.6;
-    opacity:     0.85;
+    margin:      0 0 1.75rem;
+    font-size:   0.9375rem;
+    line-height: 1.65;
+    opacity:     0.72;
 }
 
 /* --------------------------------------------------------------------------
@@ -108,66 +133,68 @@
    -------------------------------------------------------------------------- */
 
 .exit-intent-coupon-block {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
 }
 
 .exit-intent-discount-label {
-    margin:      0 0 0.5rem;
-    font-size:   0.875rem;
-    font-weight: 600;
+    margin:         0 0 0.625rem;
+    font-size:      0.75rem;
+    font-weight:    700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity:     0.7;
+    letter-spacing: 0.08em;
+    opacity:        0.55;
 }
 
 .exit-intent-coupon-row {
-    display:        flex;
-    align-items:    stretch;
-    gap:            0;
-    border:         2px dashed currentColor;
-    border-radius:  8px;
-    overflow:       hidden;
+    display:       flex;
+    align-items:   stretch;
+    border:        2px dashed currentColor;
+    border-radius: 8px;
+    overflow:      hidden;
+    opacity:       0.9;
 }
 
 .exit-intent-coupon-code {
-    flex:            1;
-    border:          none;
-    background:      transparent;
-    color:           inherit;
-    font-size:       1.125rem;
-    font-weight:     700;
-    letter-spacing:  0.1em;
-    text-align:      center;
-    padding:         0.625rem 0.75rem;
-    cursor:          default;
-    outline:         none;
-    min-width:       0;
+    flex:           1;
+    border:         none;
+    background:     transparent;
+    color:          inherit;
+    font-size:      1.1875rem;
+    font-weight:    800;
+    letter-spacing: 0.12em;
+    text-align:     center;
+    padding:        0.75rem 0.875rem;
+    cursor:         default;
+    outline:        none;
+    min-width:      0;
 }
 
 .exit-intent-copy-btn {
-    flex-shrink:     0;
-    background:      var(--eip-btn-bg);
-    color:           var(--eip-btn-text);
-    border:          none;
-    padding:         0.625rem 1rem;
-    font-size:       0.875rem;
-    font-weight:     600;
-    cursor:          pointer;
-    transition:      filter var(--eip-transition);
-    white-space:     nowrap;
+    flex-shrink:  0;
+    background:   var(--eip-btn-bg);
+    color:        var(--eip-btn-text);
+    border:       none;
+    border-left:  2px dashed rgba(255, 255, 255, 0.35);
+    padding:      0.75rem 1.125rem;
+    font-size:    0.8125rem;
+    font-weight:  700;
+    cursor:       pointer;
+    transition:   filter var(--eip-transition);
+    white-space:  nowrap;
+    letter-spacing: 0.02em;
 }
 
 .exit-intent-copy-btn:hover,
 .exit-intent-copy-btn:focus {
-    filter:  brightness(0.9);
-    outline: 2px solid currentColor;
+    filter:  brightness(0.88);
+    outline: none;
 }
 
 .exit-intent-copy-confirm {
-    margin:     0.5rem 0 0;
-    font-size:  0.8125rem;
+    margin:      0.5rem 0 0;
+    font-size:   0.8125rem;
     font-weight: 600;
-    color:      #2e7d32;
+    color:       #2e7d32;
 }
 
 /* --------------------------------------------------------------------------
@@ -177,50 +204,51 @@
 .exit-intent-actions {
     display:        flex;
     flex-direction: column;
-    gap:            0.75rem;
+    gap:            0.625rem;
 }
 
 .exit-intent-cta-btn {
-    display:       block;
-    width:         100%;
-    padding:       0.875rem 1.5rem;
-    background:    var(--eip-btn-bg);
-    color:         var(--eip-btn-text);
-    border:        none;
-    border-radius: 8px;
-    font-size:     1rem;
-    font-weight:   700;
-    cursor:        pointer;
-    transition:    filter var(--eip-transition), transform var(--eip-transition);
+    display:        block;
+    width:          100%;
+    padding:        0.9375rem 1.5rem;
+    background:     var(--eip-btn-bg);
+    color:          var(--eip-btn-text);
+    border:         none;
+    border-radius:  8px;
+    font-size:      1rem;
+    font-weight:    700;
+    cursor:         pointer;
     letter-spacing: 0.02em;
+    transition:     filter var(--eip-transition), transform var(--eip-transition);
+    box-shadow:     0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .exit-intent-cta-btn:hover,
 .exit-intent-cta-btn:focus {
     filter:    brightness(0.9);
     transform: translateY(-1px);
-    outline:   2px solid currentColor;
+    outline:   none;
 }
 
 .exit-intent-secondary-btn {
-    display:       block;
-    width:         100%;
-    padding:       0.625rem 1.5rem;
-    background:    transparent;
-    color:         inherit;
-    border:        2px solid currentColor;
-    border-radius: 8px;
-    font-size:     0.9375rem;
-    font-weight:   600;
-    cursor:        pointer;
-    opacity:       0.75;
-    transition:    opacity var(--eip-transition);
+    display:        block;
+    width:          100%;
+    padding:        0.6875rem 1.5rem;
+    background:     transparent;
+    color:          inherit;
+    border:         1.5px solid currentColor;
+    border-radius:  8px;
+    font-size:      0.9375rem;
+    font-weight:    600;
+    cursor:         pointer;
+    opacity:        0.5;
+    transition:     opacity var(--eip-transition);
 }
 
 .exit-intent-secondary-btn:hover,
 .exit-intent-secondary-btn:focus {
-    opacity: 1;
-    outline: 2px solid currentColor;
+    opacity: 0.85;
+    outline: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -229,12 +257,12 @@
 
 @media (max-width: 600px) {
     .exit-intent-popup {
-        padding:    2rem 1.25rem 1.5rem;
-        max-width:  100%;
+        padding:   2.25rem 1.5rem 1.75rem;
+        max-width: 100%;
     }
 
     .exit-intent-heading {
-        font-size: 1.25rem;
+        font-size: 1.375rem;
     }
 
     .exit-intent-coupon-code {
@@ -243,18 +271,19 @@
 }
 
 /* --------------------------------------------------------------------------
-   Responsive — mobile (≤ 400px)
+   Responsive — mobile (≤ 400px): sheet slides up from bottom
    -------------------------------------------------------------------------- */
 
 @media (max-width: 400px) {
     .exit-intent-overlay {
-        padding:    0.5rem;
+        padding:     0;
         align-items: flex-end;
     }
 
     .exit-intent-popup {
         border-radius: var(--eip-radius) var(--eip-radius) 0 0;
-        padding:       1.75rem 1rem 1.25rem;
+        padding:       2rem 1.125rem 1.5rem;
+        max-width:     100%;
     }
 
     .exit-intent-coupon-row {
@@ -262,7 +291,8 @@
     }
 
     .exit-intent-copy-btn {
-        border-top: 2px dashed currentColor;
-        padding:    0.625rem;
+        border-left:  none;
+        border-top:   2px dashed rgba(255, 255, 255, 0.35);
+        padding:      0.75rem;
     }
 }
