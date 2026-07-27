@@ -6,6 +6,7 @@ namespace Ict\ExitIntentDiscountPopup\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Config
 {
@@ -17,8 +18,14 @@ class Config
     private const XML_CONTENT   = self::XML_PREFIX . 'content/';
 
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig
+        private readonly ScopeConfigInterface  $scopeConfig,
+        private readonly StoreManagerInterface $storeManager
     ) {}
+
+    private function resolveStore(?string $scopeCode): string
+    {
+        return $scopeCode ?? (string) $this->storeManager->getStore()->getId();
+    }
 
     // -------------------------------------------------------------------------
     // General
@@ -29,7 +36,7 @@ class Config
         return $this->scopeConfig->isSetFlag(
             self::XML_GENERAL . 'enable',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -38,7 +45,7 @@ class Config
         return (int) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'mobile_delay',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -47,7 +54,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'popup_frequency',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -56,7 +63,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'background_color',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -65,7 +72,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'font_color',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -74,7 +81,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'button_color',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -83,7 +90,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_GENERAL . 'button_text_color',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -96,7 +103,7 @@ class Config
         return (int) $this->scopeConfig->getValue(
             self::XML_PROMOTION . 'coupon_rule_id',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -105,7 +112,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_PROMOTION . 'copy_button_text',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -114,7 +121,7 @@ class Config
         return $this->scopeConfig->isSetFlag(
             self::XML_PROMOTION . 'send_email_logged_in',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -127,7 +134,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_CONTENT . 'popup_heading',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -136,7 +143,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_CONTENT . 'popup_description',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -145,7 +152,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_CONTENT . 'discount_label',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -154,7 +161,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_CONTENT . 'cta_button_text',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 
@@ -163,7 +170,7 @@ class Config
         return (string) $this->scopeConfig->getValue(
             self::XML_CONTENT . 'secondary_button_text',
             ScopeInterface::SCOPE_STORE,
-            $scopeCode
+            $this->resolveStore($scopeCode)
         );
     }
 }

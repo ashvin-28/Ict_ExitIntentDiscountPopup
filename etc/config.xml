@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <exitintentpopup>
+            <general>
+                <enable>1</enable>
+                <mobile_delay>5000</mobile_delay>
+                <popup_frequency>always</popup_frequency>
+                <background_color>#ffffff</background_color>
+                <font_color>#303030</font_color>
+                <button_color>#1979c3</button_color>
+                <button_text_color>#ffffff</button_text_color>
+            </general>
+            <promotion>
+                <coupon_rule_id>7</coupon_rule_id>
+                <copy_button_text>Copy Code</copy_button_text>
+                <send_email_logged_in>1</send_email_logged_in>
+            </promotion>
+            <content>
+                <popup_heading>Wait! Don't Leave Yet?</popup_heading>
+                <popup_description>Complete your order now and get an exclusive discount on this purchase.</popup_description>
+                <discount_label>Your Exclusive Discount Code</discount_label>
+                <cta_button_text>Place Order Now</cta_button_text>
+                <secondary_button_text>Continue Shopping</secondary_button_text>
+            </content>
+        </exitintentpopup>
+    </default>
+</config>
