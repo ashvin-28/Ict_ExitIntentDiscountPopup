@@ -11,7 +11,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
-use Magento\SalesRule\Api\RuleRepositoryInterface;
+use Magento\SalesRule\Model\RuleFactory;
 
 class Shown implements HttpPostActionInterface
 {
@@ -21,7 +21,7 @@ class Shown implements HttpPostActionInterface
         private readonly CustomerSession       $customerSession,
         private readonly Config                $config,
         private readonly CouponValidator       $couponValidator,
-        private readonly RuleRepositoryInterface $ruleRepository,
+        private readonly RuleFactory           $ruleFactory,
         private readonly EventManager          $eventManager
     ) {}
 
@@ -40,9 +40,13 @@ class Shown implements HttpPostActionInterface
         }
 
         try {
-            $rule       = $this->ruleRepository->getById($ruleId);
-            $couponCode = $rule->getCouponCode();
+            $rule       = $this->ruleFactory->create()->load($ruleId);
+            $couponCode = $rule->getPrimaryCoupon()->getCode();
         } catch (\Exception) {
+            return $result->setData(['success' => false]);
+        }
+
+        if (!$couponCode) {
             return $result->setData(['success' => false]);
         }
 

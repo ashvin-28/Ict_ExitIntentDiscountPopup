@@ -26,9 +26,14 @@ class RecordGuestCouponUsage implements ObserverInterface
      */
     public function execute(Observer $observer): void
     {
+        $orderIncrementId = 'unknown';
+
         try {
             /** @var \Magento\Sales\Model\Order $order */
             $order = $observer->getData('order');
+            $orderIncrementId = $order instanceof \Magento\Sales\Model\Order
+                ? $order->getIncrementId()
+                : 'unknown';
 
             // Only process guest orders — logged-in orders are tracked via
             // the native salesrule_coupon_usage table.
@@ -63,11 +68,11 @@ class RecordGuestCouponUsage implements ObserverInterface
                 $ruleId,
                 (int) $order->getEntityId()
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Never break order placement on observer failure.
             $this->logger->error(
                 'ExitIntentDiscountPopup: failed to record guest coupon usage — ' . $e->getMessage(),
-                ['order_id' => $order->getIncrementId() ?? 'unknown']
+                ['order_id' => $orderIncrementId]
             );
         }
     }

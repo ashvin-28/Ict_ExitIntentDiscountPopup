@@ -98,12 +98,12 @@ class Config
     // Promotion
     // -------------------------------------------------------------------------
 
-    public function getCouponRuleId(?string $scopeCode = null): int
+    public function getCouponRuleId(): int
     {
+        // coupon_rule_id is showInWebsite="0" showInStore="0" — global-only field.
         return (int) $this->scopeConfig->getValue(
             self::XML_PROMOTION . 'coupon_rule_id',
-            ScopeInterface::SCOPE_STORE,
-            $this->resolveStore($scopeCode)
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
     }
 

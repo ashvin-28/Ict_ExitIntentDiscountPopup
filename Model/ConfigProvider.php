@@ -55,6 +55,15 @@ class ConfigProvider implements ConfigProviderInterface
                 'discountLabel'       => $this->config->getDiscountLabel(),
                 'ctaButtonText'       => $this->config->getCtaButtonText(),
                 'secondaryButtonText' => $this->config->getSecondaryButtonText(),
+                'i18n'                => [
+                    'badgeLabel'               => (string) __('Limited Offer'),
+                    'copyConfirmText'          => (string) __('Coupon code copied!'),
+                    'closeAriaLabel'           => (string) __('Close popup'),
+                    'couponAriaLabel'          => (string) __('Discount coupon code'),
+                    'copyAriaLabel'            => (string) __('Copy coupon code to clipboard'),
+                    'placeOrderAriaLabel'      => (string) __('Place your order now'),
+                    'continueShoppingAriaLabel' => (string) __('Continue shopping'),
+                ],
             ],
         ];
     }

@@ -5,8 +5,5 @@
         <route id="ict_exitintent" frontName="ict-exitintent">
             <module name="Ict_ExitIntentDiscountPopup"/>
         </route>
-        <route id="ict_exitintentdiscountpopup" frontName="ict-exitintentdiscountpopup">
-            <module name="Ict_ExitIntentDiscountPopup"/>
-        </route>
     </router>
 </config>

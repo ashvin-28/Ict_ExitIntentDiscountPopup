@@ -178,7 +178,16 @@ define([
             var self = this;
             stepNavigator.steps().forEach(function (step) {
                 if (step.code === PAYMENT_STEP_CODE) {
-                    self._isPaymentStep(step.isVisible());
+                    var isVisibleNow = step.isVisible();
+                    self._isPaymentStep(isVisibleNow);
+
+                    // Arm immediately if payment is already the active step at bind
+                    // time (e.g. a reload while already on #payment) — subscribe()
+                    // below only fires on a future transition, not the current value.
+                    if (isVisibleNow) {
+                        self._armListeners();
+                    }
+
                     step.isVisible.subscribe(function (visible) {
                         self._isPaymentStep(visible);
                         if (visible) {
@@ -253,7 +262,17 @@ define([
         },
 
         _isMobile: function () {
-            return window.innerWidth < MOBILE_BREAKPOINT;
+            var isNarrowViewport = window.innerWidth < MOBILE_BREAKPOINT;
+
+            // Width alone misclassifies tablets (e.g. a 768px-wide iPad lands
+            // exactly on the desktop side of the breakpoint) as mouse-driven,
+            // but touch-only devices essentially never fire mouseleave — so
+            // any touch-capable device is routed to the idle-timer path too.
+            var isTouchDevice = ('ontouchstart' in window) ||
+                (navigator.maxTouchPoints > 0) ||
+                (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+
+            return isNarrowViewport || isTouchDevice;
         },
 
         // ================================================================== //

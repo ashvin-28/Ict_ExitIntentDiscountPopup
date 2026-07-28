@@ -13,14 +13,14 @@
         <!-- Close (X) -->
         <button class="exit-intent-close"
                 type="button"
-                data-bind="click: closePopup"
-                aria-label="Close popup">
+                data-bind="click: closePopup,
+                           attr: { 'aria-label': config.i18n.closeAriaLabel }">
             <span aria-hidden="true">&times;</span>
         </button>
 
         <div class="exit-intent-hero">
             <!-- Badge -->
-            <div class="exit-intent-badge" aria-hidden="true">LIMITED OFFER</div>
+            <div class="exit-intent-badge" aria-hidden="true" data-bind="text: config.i18n.badgeLabel"></div>
 
             <!-- Heading -->
             <h2 id="exit-intent-heading"
@@ -43,22 +43,22 @@
                     <input class="exit-intent-coupon-code"
                            type="text"
                            readonly
-                           data-bind="value: config.couponCode"
-                           aria-label="Discount coupon code"
+                           data-bind="value: config.couponCode,
+                                      attr: { 'aria-label': config.i18n.couponAriaLabel }"
                            aria-readonly="true"/>
 
                     <button class="exit-intent-copy-btn"
                             type="button"
                             data-bind="click: copyCode,
-                                       text: config.copyButtonText"
-                            aria-label="Copy coupon code to clipboard"></button>
+                                       text: config.copyButtonText,
+                                       attr: { 'aria-label': config.i18n.copyAriaLabel }"></button>
                 </div>
 
                 <p class="exit-intent-copy-confirm"
-                   data-bind="visible: isCopied"
+                   data-bind="visible: isCopied,
+                              text: config.i18n.copyConfirmText"
                    aria-live="polite"
                    role="status">
-                    Coupon code copied!
                 </p>
             </div>
 
@@ -70,14 +70,14 @@
                                    text: config.ctaButtonText,
                                    style: { background: config.colors.button,
                                             borderColor: config.colors.button,
-                                            color: config.colors.buttonText }"
-                        aria-label="Place your order now"></button>
+                                            color: config.colors.buttonText },
+                                   attr: { 'aria-label': config.i18n.placeOrderAriaLabel }"></button>
 
                 <button class="exit-intent-secondary-btn"
                         type="button"
                         data-bind="click: closePopup,
-                                   text: config.secondaryButtonText"
-                        aria-label="Continue shopping"></button>
+                                   text: config.secondaryButtonText,
+                                   attr: { 'aria-label': config.i18n.continueShoppingAriaLabel }"></button>
             </div>
         </div>
     </div>

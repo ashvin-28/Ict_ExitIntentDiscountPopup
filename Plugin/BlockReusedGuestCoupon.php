@@ -22,7 +22,7 @@ class BlockReusedGuestCoupon
     ) {}
 
     /**
-     * Around plugin for \Magento\Quote\Model\CouponManagement::set().
+     * Around plugin for \Magento\Quote\Api\CouponManagementInterface::set().
      *
      * Blocks guest customers from re-applying the exit-intent popup coupon
      * if they have already placed an order with it.
@@ -34,12 +34,13 @@ class BlockReusedGuestCoupon
      * @throws CouldNotSaveException when the guest has already used this coupon
      */
     public function aroundSet(
-        \Magento\Quote\Model\CouponManagement $subject,
+        \Magento\Quote\Api\CouponManagementInterface $subject,
         callable $proceed,
         int|string $cartId,
         string $couponCode
     ): bool {
         try {
+            /** @var \Magento\Quote\Model\Quote $quote */
             $quote = $this->cartRepository->getActive($cartId);
 
             // Logged-in: native "Uses per Customer" handles this — do not interfere.
