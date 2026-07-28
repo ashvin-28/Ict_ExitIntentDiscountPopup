@@ -13,13 +13,21 @@ use Psr\Log\LoggerInterface;
 
 class BlockReusedGuestCoupon
 {
+    /**
+     * @param CartRepositoryInterface $cartRepository
+     * @param CouponFactory $couponFactory
+     * @param Config $config
+     * @param GuestCouponUsage $guestCouponUsage
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         private readonly CartRepositoryInterface $cartRepository,
         private readonly CouponFactory           $couponFactory,
         private readonly Config                  $config,
         private readonly GuestCouponUsage        $guestCouponUsage,
         private readonly LoggerInterface         $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Around plugin for \Magento\Quote\Api\CouponManagementInterface::set().
@@ -31,6 +39,11 @@ class BlockReusedGuestCoupon
      * Any unexpected error in our lookup logic falls through to $proceed
      * (fail-open) so we never break unrelated coupon applications.
      *
+     * @param \Magento\Quote\Api\CouponManagementInterface $subject
+     * @param callable $proceed
+     * @param int|string $cartId
+     * @param string $couponCode
+     * @return bool
      * @throws CouldNotSaveException when the guest has already used this coupon
      */
     public function aroundSet(

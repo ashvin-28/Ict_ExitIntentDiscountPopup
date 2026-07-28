@@ -29,13 +29,23 @@ use Psr\Log\LoggerInterface;
  */
 class StripReusedCouponOnTotals implements ObserverInterface
 {
+    /**
+     * @param Config $config
+     * @param GuestCouponUsage $guestCouponUsage
+     * @param CouponFactory $couponFactory
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         private readonly Config           $config,
         private readonly GuestCouponUsage $guestCouponUsage,
         private readonly CouponFactory    $couponFactory,
         private readonly LoggerInterface  $logger
-    ) {}
+    ) {
+    }
 
+    /**
+     * @inheritDoc
+     */
     public function execute(Observer $observer): void
     {
         try {

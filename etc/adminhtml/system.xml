@@ -64,10 +64,11 @@
                     <label>Copy Button Text</label>
                 </field>
 
-                <field id="send_email_logged_in" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Send Email to Logged-In Customers</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <field id="apply_button_text" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Apply Button Text</label>
+                    <comment>Default: Apply Code</comment>
                 </field>
+
             </group>
 
             <!-- Group 3: Popup Content -->
@@ -86,14 +87,38 @@
                     <label>Discount Label</label>
                 </field>
 
-                <field id="cta_button_text" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>CTA Button Text</label>
-                    <comment>Default: Place Order Now</comment>
+                <field id="close_button_text" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Close Button Text</label>
+                    <comment>Default: No Thanks</comment>
+                </field>
+            </group>
+
+            <!-- Group 4: Login Prompt Content -->
+            <group id="login_prompt" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Login Prompt Content</label>
+                <comment>Shown to guests instead of the discount popup, until they log in.</comment>
+
+                <field id="frequency" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Login Prompt Frequency</label>
+                    <source_model>Ict\ExitIntentDiscountPopup\Model\Source\PopupFrequency</source_model>
                 </field>
 
-                <field id="secondary_button_text" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Secondary Button Text</label>
-                    <comment>Default: Continue Shopping</comment>
+                <field id="heading" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Login Prompt Heading</label>
+                </field>
+
+                <field id="message" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Login Prompt Message</label>
+                </field>
+
+                <field id="login_button_text" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Login Button Text</label>
+                    <comment>Default: Login</comment>
+                </field>
+
+                <field id="register_link_text" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Register Link Text</label>
+                    <comment>Default: New customer? Create an account</comment>
                 </field>
             </group>
         </section>

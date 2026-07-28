@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="ict_exitintent_popup_shown">
-        <observer name="ict_exitintent_send_coupon_email"
-                  instance="Ict\ExitIntentDiscountPopup\Observer\SendCouponEmail"/>
+    <!-- Return the guest to checkout after login/registration from the exit-intent login prompt. -->
+    <event name="controller_action_predispatch_customer_account_login">
+        <observer name="ict_exitintent_set_login_referrer_url"
+                  instance="Ict\ExitIntentDiscountPopup\Observer\SetLoginReferrerUrl"/>
+    </event>
+    <event name="controller_action_predispatch_customer_account_create">
+        <observer name="ict_exitintent_set_login_referrer_url"
+                  instance="Ict\ExitIntentDiscountPopup\Observer\SetLoginReferrerUrl"/>
     </event>
 </config>

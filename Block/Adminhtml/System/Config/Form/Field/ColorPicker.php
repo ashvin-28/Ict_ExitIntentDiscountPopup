@@ -9,6 +9,9 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class ColorPicker extends Field
 {
+    /**
+     * @inheritDoc
+     */
     protected function _getElementHtml(AbstractElement $element): string
     {
         $element->setType('color');

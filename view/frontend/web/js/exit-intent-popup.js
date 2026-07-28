@@ -5,18 +5,25 @@ define([
     'Magento_Checkout/js/model/step-navigator',
     'Magento_Checkout/js/model/quote',
     'mage/storage',
-    'Magento_Checkout/js/model/url-builder'
-], function (Component, ko, $, stepNavigator, quote, storage, urlBuilder) {
+    'Magento_Checkout/js/model/url-builder',
+    'Magento_SalesRule/js/action/set-coupon-code',
+    'Magento_SalesRule/js/model/coupon'
+], function (Component, ko, $, stepNavigator, quote, storage, urlBuilder, setCouponCodeAction, nativeCoupon) {
     'use strict';
 
     var MOBILE_BREAKPOINT = 768;
     var THROTTLE_MS       = 200;
     var COPY_RESET_MS     = 3000;
+    var APPLY_RESET_MS    = 1000;
     var PAYMENT_STEP_CODE = 'payment';
     var EMAIL_REGEX       = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function sessionShownKey(ruleId) {
         return 'ictExitPopupSessionShown_' + ruleId;
+    }
+
+    function loginPromptSessionShownKey(ruleId) {
+        return 'ictExitPopupLoginPromptShown_' + ruleId;
     }
 
     function throttle(fn, wait) {
@@ -40,6 +47,9 @@ define([
         popupEnabled:       null,
         isVisible:          null,
         isCopied:           null,
+        isApplied:          null,
+        applyError:         null,
+        popupMode:          null,
         _isPaymentStep:     null,
         _listenersAttached: false,
 
@@ -50,6 +60,9 @@ define([
             this.popupEnabled   = ko.observable(!!this.config.enabled);
             this.isVisible      = ko.observable(false);
             this.isCopied       = ko.observable(false);
+            this.isApplied      = ko.observable(false);
+            this.applyError     = ko.observable('');
+            this.popupMode      = ko.observable('discount');
             this._isPaymentStep = ko.observable(false);
 
             // ruleId must exist for any functionality to make sense.
@@ -163,6 +176,25 @@ define([
         },
 
         // ================================================================== //
+        // Guest login-prompt session gate — its own independently
+        // configurable Login Prompt Frequency setting, separate from the
+        // Popup Frequency setting (which governs only the discount popup's
+        // cadence for logged-in/eligible shoppers).
+        // ================================================================== //
+
+        _loginPromptShownThisSession: function () {
+            return this.config.loginPrompt.frequency !== 'always' &&
+                   !!sessionStorage.getItem(loginPromptSessionShownKey(this.config.ruleId));
+        },
+
+        _markLoginPromptShownThisSession: function () {
+            if (this.config.loginPrompt.frequency === 'always') {
+                return;
+            }
+            sessionStorage.setItem(loginPromptSessionShownKey(this.config.ruleId), '1');
+        },
+
+        // ================================================================== //
         // Step-navigator subscription
         // ================================================================== //
 
@@ -254,11 +286,29 @@ define([
             if (!this._isPaymentStep()) {
                 return;
             }
+
+            // Guests are shown a login prompt instead of the discount, once
+            // per session — they only reach the discount popup (below) after
+            // logging in, on a later trigger.
+            if (!this.config.isLoggedIn) {
+                this._triggerLoginPrompt();
+                return;
+            }
+
             if (this._shownThisSession()) {
                 return;
             }
+            this.popupMode('discount');
             this.isVisible(true);
-            this._notifyServer();
+        },
+
+        _triggerLoginPrompt: function () {
+            if (this._loginPromptShownThisSession()) {
+                return;
+            }
+            this._markLoginPromptShownThisSession();
+            this.popupMode('loginPrompt');
+            this.isVisible(true);
         },
 
         _isMobile: function () {
@@ -273,22 +323,6 @@ define([
                 (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
             return isNarrowViewport || isTouchDevice;
-        },
-
-        // ================================================================== //
-        // Server notification
-        // ================================================================== //
-
-        _notifyServer: function () {
-            fetch(window.BASE_URL + 'ict-exitintent/popup/shown', {
-                method:      'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type':     'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ form_key: window.FORM_KEY || '' })
-            }).catch(function () { /* silent */ });
         },
 
         // ================================================================== //
@@ -350,17 +384,91 @@ define([
         },
 
         // ================================================================== //
+        // applyCode — applies the coupon to the cart/quote via Magento's own
+        // coupon-apply action (Magento_SalesRule/js/action/set-coupon-code),
+        // the same mechanism used by the checkout order summary's own
+        // "Apply Discount Code" widget. This goes through the standard
+        // guest/customer coupon REST endpoints, so it is still subject to
+        // BlockReusedGuestCoupon (guests) and native Uses-Per-Customer
+        // (logged-in) validation — an already-redeemed coupon is rejected.
+        //
+        // The applied flag is passed through on the shared
+        // Magento_SalesRule/js/model/coupon singleton (not a throwaway local
+        // observable) — that is the exact observable the native "Apply
+        // Discount Code" widget itself is bound to, so setting it here
+        // updates that widget's own UI (input, Apply/Cancel toggle) instantly
+        // as well, without waiting for a page refresh.
+        // ================================================================== //
+
+        applyCode: function () {
+            var self = this;
+            var code = this.config.couponCode;
+
+            if (!code) {
+                return;
+            }
+
+            this.applyError('');
+
+            setCouponCodeAction(code, nativeCoupon.getIsApplied())
+                .done(function () {
+                    nativeCoupon.setCouponCode(code);
+                    self._showAppliedConfirmation();
+                })
+                .fail(function (response) {
+                    self._showApplyError(response);
+                });
+        },
+
+        _showAppliedConfirmation: function () {
+            var self = this;
+            this.isApplied(true);
+            setTimeout(function () {
+                self.isApplied(false);
+                 self.closePopup();
+            }, APPLY_RESET_MS);
+        },
+
+        _showApplyError: function (response) {
+            var message = '';
+
+            try {
+                message = JSON.parse(response.responseText).message;
+            } catch (e) { /* fall back to the generic message below */ }
+
+            this.applyError(message || this.config.i18n.applyGenericErrorText);
+        },
+
+        // ================================================================== //
         // closePopup
         // ================================================================== //
 
         closePopup: function () {
             this.isVisible(false);
             this.isCopied(false);
-            this._markShownThisSession();
+            this.isApplied(false);
+            this.applyError('');
+
+            // The login prompt is already marked shown-this-session at
+            // trigger time (see _triggerLoginPrompt) — only the discount
+            // popup's Popup Frequency gate is marked here, on close.
+            if (this.popupMode() === 'discount') {
+                this._markShownThisSession();
+            }
         },
 
-        placeOrderNow: function () {
-            this.closePopup();
+        // ================================================================== //
+        // Login prompt actions — full-page navigation; the target URLs
+        // already carry an encoded referer back to checkout (see
+        // ConfigProvider::buildAccountUrl() and Observer\SetLoginReferrerUrl).
+        // ================================================================== //
+
+        goToLogin: function () {
+            window.location.href = this.config.loginPrompt.loginUrl;
+        },
+
+        goToRegister: function () {
+            window.location.href = this.config.loginPrompt.registerUrl;
         }
     });
 });

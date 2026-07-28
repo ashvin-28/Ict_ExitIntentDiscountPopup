@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class CouponValidatorTest extends TestCase
 {
+    /** @var CouponValidator */
     private CouponValidator $model;
 
     /** @var RuleRepositoryInterface|MockObject */

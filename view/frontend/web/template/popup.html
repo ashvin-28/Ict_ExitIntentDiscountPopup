@@ -8,7 +8,9 @@
 
     <div class="exit-intent-popup"
          role="document"
-         data-bind="style: { background: config.colors.background, color: config.colors.font }">
+         data-bind="style: { background: config.colors.background,
+                              color: config.colors.font,
+                              '--eip-text': config.colors.font }">
 
         <!-- Close (X) -->
         <button class="exit-intent-close"
@@ -18,6 +20,7 @@
             <span aria-hidden="true">&times;</span>
         </button>
 
+        <!-- ko if: popupMode() === 'discount' -->
         <div class="exit-intent-hero">
             <!-- Badge -->
             <div class="exit-intent-badge" aria-hidden="true" data-bind="text: config.i18n.badgeLabel"></div>
@@ -45,13 +48,22 @@
                            readonly
                            data-bind="value: config.couponCode,
                                       attr: { 'aria-label': config.i18n.couponAriaLabel }"
-                           aria-readonly="true"/>
+                           aria-readonly="true">
 
                     <button class="exit-intent-copy-btn"
                             type="button"
                             data-bind="click: copyCode,
                                        text: config.copyButtonText,
                                        attr: { 'aria-label': config.i18n.copyAriaLabel }"></button>
+
+                    <button class="exit-intent-apply-btn"
+                            type="button"
+                            data-bind="click: applyCode,
+                                       text: config.applyButtonText,
+                                       style: { background: config.colors.button,
+                                                borderColor: config.colors.button,
+                                                color: config.colors.buttonText },
+                                       attr: { 'aria-label': config.i18n.applyAriaLabel }"></button>
                 </div>
 
                 <p class="exit-intent-copy-confirm"
@@ -60,25 +72,65 @@
                    aria-live="polite"
                    role="status">
                 </p>
+
+                <p class="exit-intent-apply-confirm"
+                   data-bind="visible: isApplied,
+                              text: config.i18n.applyConfirmText"
+                   aria-live="polite"
+                   role="status">
+                </p>
+
+                <p class="exit-intent-apply-error"
+                   data-bind="visible: applyError,
+                              text: applyError"
+                   aria-live="assertive"
+                   role="alert">
+                </p>
             </div>
 
             <!-- Actions -->
             <div class="exit-intent-actions">
-                <button class="exit-intent-cta-btn"
-                        type="button"
-                        data-bind="click: placeOrderNow,
-                                   text: config.ctaButtonText,
-                                   style: { background: config.colors.button,
-                                            borderColor: config.colors.button,
-                                            color: config.colors.buttonText },
-                                   attr: { 'aria-label': config.i18n.placeOrderAriaLabel }"></button>
-
                 <button class="exit-intent-secondary-btn"
                         type="button"
                         data-bind="click: closePopup,
-                                   text: config.secondaryButtonText,
-                                   attr: { 'aria-label': config.i18n.continueShoppingAriaLabel }"></button>
+                                   text: config.closeButtonText"></button>
             </div>
         </div>
+        <!-- /ko -->
+
+        <!-- ko if: popupMode() === 'loginPrompt' -->
+        <div class="exit-intent-hero">
+            <!-- Badge -->
+            <div class="exit-intent-badge" aria-hidden="true" data-bind="text: config.i18n.badgeLabel"></div>
+
+            <!-- Heading -->
+            <h2 id="exit-intent-heading"
+                class="exit-intent-heading"
+                data-bind="text: config.loginPrompt.heading"></h2>
+
+            <!-- Message -->
+            <p id="exit-intent-description"
+               class="exit-intent-description"
+               data-bind="text: config.loginPrompt.message"></p>
+        </div>
+
+        <div class="exit-intent-body exit-intent-body-login-prompt">
+            <!-- Actions -->
+            <div class="exit-intent-actions">
+                <button class="exit-intent-cta-btn"
+                        type="button"
+                        data-bind="click: goToLogin,
+                                   text: config.loginPrompt.loginButtonText,
+                                   style: { background: config.colors.button,
+                                            borderColor: config.colors.button,
+                                            color: config.colors.buttonText }"></button>
+
+                <button class="exit-intent-secondary-btn exit-intent-register-link"
+                        type="button"
+                        data-bind="click: goToRegister,
+                                   text: config.loginPrompt.registerLinkText"></button>
+            </div>
+        </div>
+        <!-- /ko -->
     </div>
 </div>

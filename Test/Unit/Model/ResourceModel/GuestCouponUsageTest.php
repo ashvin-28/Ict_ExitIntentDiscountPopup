@@ -15,6 +15,7 @@ class GuestCouponUsageTest extends TestCase
 {
     private const TABLE = 'ict_exitintent_guest_coupon_usage';
 
+    /** @var GuestCouponUsage */
     private GuestCouponUsage $model;
 
     /** @var ResourceConnection|MockObject */
@@ -63,10 +64,15 @@ class GuestCouponUsageTest extends TestCase
     public function testRecordInsertsIgnoreWithNormalizedEmail(): void
     {
         $this->connection->expects($this->once())
-            ->method('query')
+            ->method('insertOnDuplicate')
             ->with(
-                $this->stringContains('INSERT IGNORE INTO'),
-                ['shopper@example.com', 7, 123]
+                self::TABLE,
+                [
+                    'email'    => 'shopper@example.com',
+                    'rule_id'  => 7,
+                    'order_id' => 123,
+                ],
+                ['email']
             );
 
         $this->model->record('  Shopper@Example.com  ', 7, 123);

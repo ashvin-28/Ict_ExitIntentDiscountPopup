@@ -41,8 +41,10 @@ class BlockReusedGuestCouponTest extends TestCase
     /** @var CouponManagementInterface|MockObject */
     private $subject;
 
+    /** @var BlockReusedGuestCoupon */
     private BlockReusedGuestCoupon $plugin;
 
+    /** @var bool */
     private bool $proceedWasCalled;
 
     protected function setUp(): void

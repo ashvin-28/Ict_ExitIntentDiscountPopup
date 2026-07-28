@@ -32,6 +32,7 @@ class StripReusedCouponOnTotalsTest extends TestCase
     /** @var LoggerInterface|MockObject */
     private $logger;
 
+    /** @var StripReusedCouponOnTotals */
     private StripReusedCouponOnTotals $observerModel;
 
     protected function setUp(): void

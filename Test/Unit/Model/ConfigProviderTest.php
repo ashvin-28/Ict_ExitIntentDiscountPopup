@@ -13,6 +13,8 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Select;
+use Magento\Framework\Url\EncoderInterface;
+use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\Quote;
 use Magento\SalesRule\Model\Coupon;
 use Magento\SalesRule\Model\Rule;
@@ -24,6 +26,7 @@ class ConfigProviderTest extends TestCase
 {
     private const RULE_ID = 7;
 
+    /** @var ConfigProvider */
     private ConfigProvider $model;
 
     /** @var Config|MockObject */
@@ -47,6 +50,12 @@ class ConfigProviderTest extends TestCase
     /** @var GuestCouponUsage|MockObject */
     private $guestCouponUsage;
 
+    /** @var UrlInterface|MockObject */
+    private $urlBuilder;
+
+    /** @var EncoderInterface|MockObject */
+    private $urlEncoder;
+
     protected function setUp(): void
     {
         $this->config           = $this->createMock(Config::class);
@@ -56,6 +65,18 @@ class ConfigProviderTest extends TestCase
         $this->checkoutSession  = $this->createMock(CheckoutSession::class);
         $this->resource         = $this->createMock(ResourceConnection::class);
         $this->guestCouponUsage = $this->createMock(GuestCouponUsage::class);
+        $this->urlBuilder       = $this->createMock(UrlInterface::class);
+        $this->urlEncoder       = $this->createMock(EncoderInterface::class);
+
+        $this->urlBuilder->method('getUrl')->willReturnCallback(function ($route, $params = []) {
+            if ($route === 'checkout') {
+                return 'https://example.com/checkout/';
+            }
+            return 'https://example.com/' . $route . '/?referer=' . ($params['referer'] ?? '');
+        });
+        $this->urlEncoder->method('encode')->willReturnCallback(function ($url) {
+            return 'ENC(' . $url . ')';
+        });
 
         // Baseline: valid rule id configured, guest (not logged-in) session.
         $this->config->method('getCouponRuleId')->willReturn(self::RULE_ID);
@@ -73,7 +94,9 @@ class ConfigProviderTest extends TestCase
             customerSession: $this->customerSession,
             checkoutSession: $this->checkoutSession,
             resource: $this->resource,
-            guestCouponUsage: $this->guestCouponUsage
+            guestCouponUsage: $this->guestCouponUsage,
+            urlBuilder: $this->urlBuilder,
+            urlEncoder: $this->urlEncoder
         );
     }
 
@@ -167,6 +190,37 @@ class ConfigProviderTest extends TestCase
         $this->assertArrayHasKey('copyConfirmText', $config['i18n']);
     }
 
+    public function testDiscountPopupNoLongerExposesCtaOrSecondaryButtonConfig(): void
+    {
+        $config = $this->model->getConfig()['exitIntentPopup'];
+
+        $this->assertArrayNotHasKey('ctaButtonText', $config);
+        $this->assertArrayNotHasKey('secondaryButtonText', $config);
+        $this->assertArrayNotHasKey('placeOrderAriaLabel', $config['i18n']);
+        $this->assertArrayNotHasKey('continueShoppingAriaLabel', $config['i18n']);
+    }
+
+    public function testApplyButtonTextAndI18nAreExposed(): void
+    {
+        $this->config->method('getApplyButtonText')->willReturn('Apply Code');
+
+        $config = $this->model->getConfig()['exitIntentPopup'];
+
+        $this->assertSame('Apply Code', $config['applyButtonText']);
+        $this->assertArrayHasKey('applyAriaLabel', $config['i18n']);
+        $this->assertArrayHasKey('applyConfirmText', $config['i18n']);
+        $this->assertArrayHasKey('applyGenericErrorText', $config['i18n']);
+    }
+
+    public function testCloseButtonTextIsExposed(): void
+    {
+        $this->config->method('getCloseButtonText')->willReturn('No Thanks');
+
+        $config = $this->model->getConfig()['exitIntentPopup'];
+
+        $this->assertSame('No Thanks', $config['closeButtonText']);
+    }
+
     public function testLoggedInCustomerAlreadyRedeemedBlocksPopup(): void
     {
         $this->customerSession = $this->createMock(CustomerSession::class);
@@ -195,5 +249,48 @@ class ConfigProviderTest extends TestCase
 
         $this->assertFalse($config['enabled']);
         $this->assertNull($config['couponCode']);
+    }
+
+    public function testGuestConfigReportsNotLoggedIn(): void
+    {
+        $config = $this->model->getConfig()['exitIntentPopup'];
+
+        $this->assertFalse($config['isLoggedIn']);
+    }
+
+    public function testLoggedInConfigReportsLoggedIn(): void
+    {
+        $this->customerSession = $this->createMock(CustomerSession::class);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+        $this->model = $this->buildModel();
+
+        $config = $this->model->getConfig()['exitIntentPopup'];
+
+        $this->assertTrue($config['isLoggedIn']);
+    }
+
+    public function testLoginPromptContentAndUrlsCarryAnEncodedCheckoutReferer(): void
+    {
+        $this->config->method('getLoginPromptFrequency')->willReturn('always');
+        $this->config->method('getLoginPromptHeading')->willReturn('Unlock Your Exclusive Discount');
+        $this->config->method('getLoginPromptMessage')->willReturn('Login to unlock your exclusive discount.');
+        $this->config->method('getLoginButtonText')->willReturn('Login');
+        $this->config->method('getRegisterLinkText')->willReturn('New customer? Create an account');
+
+        $loginPrompt = $this->model->getConfig()['exitIntentPopup']['loginPrompt'];
+
+        $this->assertSame('always', $loginPrompt['frequency']);
+        $this->assertSame('Unlock Your Exclusive Discount', $loginPrompt['heading']);
+        $this->assertSame('Login to unlock your exclusive discount.', $loginPrompt['message']);
+        $this->assertSame('Login', $loginPrompt['loginButtonText']);
+        $this->assertSame('New customer? Create an account', $loginPrompt['registerLinkText']);
+        $this->assertSame(
+            'https://example.com/customer/account/login/?referer=ENC(https://example.com/checkout/)',
+            $loginPrompt['loginUrl']
+        );
+        $this->assertSame(
+            'https://example.com/customer/account/create/?referer=ENC(https://example.com/checkout/)',
+            $loginPrompt['registerUrl']
+        );
     }
 }

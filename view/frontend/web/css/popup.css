@@ -120,7 +120,7 @@
 
 .exit-intent-heading {
     margin: 0 34px 4px 0;
-    color: #333;
+    color: var(--eip-text);
     font-size: 22px;
     font-weight: 400;
     letter-spacing: 0;
@@ -137,16 +137,20 @@
 
 .exit-intent-body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 30px;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
+    gap: 24px;
+}
+
+.exit-intent-body-login-prompt {
+    max-width: 320px;
+    margin: 0 auto;
 }
 
 .exit-intent-coupon-block {
     min-width: 0;
     margin: 0;
-    padding: 0 30px 0 0;
-    border-right: 1px solid var(--eip-border-light);
+    padding: 0;
 }
 
 .exit-intent-discount-label {
@@ -161,7 +165,7 @@
 
 .exit-intent-coupon-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     min-height: 46px;
     border: 1px solid #adadad;
     border-radius: 4px;
@@ -172,7 +176,7 @@
 .exit-intent-coupon-code {
     min-width: 0;
     width: 100%;
-    height: 44px;
+    height: 100% !important;
     box-sizing: border-box;
     padding: 0 14px;
     border: 0;
@@ -214,9 +218,41 @@
     outline: none;
 }
 
-.exit-intent-copy-confirm {
+.exit-intent-apply-btn {
+    min-width: 100px;
+    min-height: 44px;
+    padding: 0 15px;
+    border: 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-align: center;
+    transition: opacity var(--eip-transition);
+    white-space: nowrap;
+}
+
+.exit-intent-apply-btn:hover,
+.exit-intent-apply-btn:focus {
+    opacity: 0.9;
+    outline: none;
+}
+
+.exit-intent-copy-confirm,
+.exit-intent-apply-confirm {
     margin: 9px 0 0;
     color: #2f7d32;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.exit-intent-apply-error {
+    margin: 9px 0 0;
+    color: #d13232;
     font-size: 12px;
     font-weight: 600;
     line-height: 1.35;
@@ -283,16 +319,6 @@
         padding: 28px 24px 26px;
     }
 
-    .exit-intent-body {
-        grid-template-columns: 1fr;
-        gap: 22px;
-    }
-
-    .exit-intent-coupon-block {
-        padding-right: 0;
-        border-right: 0;
-    }
-
     .exit-intent-actions {
         gap: 10px;
     }
@@ -322,7 +348,8 @@
         grid-template-columns: 1fr;
     }
 
-    .exit-intent-copy-btn {
+    .exit-intent-copy-btn,
+    .exit-intent-apply-btn {
         width: 100%;
         border-top: 1px solid #adadad;
         border-left: 0;

@@ -13,16 +13,28 @@ use Psr\Log\LoggerInterface;
 
 class RecordGuestCouponUsage implements ObserverInterface
 {
+    /**
+     * @param Config $config
+     * @param GuestCouponUsage $guestCouponUsage
+     * @param RuleFactory $ruleFactory
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         private readonly Config            $config,
         private readonly GuestCouponUsage  $guestCouponUsage,
         private readonly RuleFactory       $ruleFactory,
         private readonly LoggerInterface   $logger
-    ) {}
+    ) {
+    }
 
     /**
+     * Record guest coupon usage after order placement.
+     *
      * Event: sales_order_place_after
      * Data:  order \Magento\Sales\Model\Order
+     *
+     * @param Observer $observer
+     * @return void
      */
     public function execute(Observer $observer): void
     {
@@ -77,6 +89,12 @@ class RecordGuestCouponUsage implements ObserverInterface
         }
     }
 
+    /**
+     * Resolve coupon code for the configured sales rule.
+     *
+     * @param int $ruleId
+     * @return string|null
+     */
     private function resolveCouponCode(int $ruleId): ?string
     {
         try {

@@ -67,16 +67,6 @@ class ConfigTest extends TestCase
         $this->assertSame(7, $this->buildModel()->getCouponRuleId());
     }
 
-    public function testIsEmailToLoggedInEnabledUsesStoreScope(): void
-    {
-        $this->scopeConfig->expects($this->once())
-            ->method('isSetFlag')
-            ->with('exitintentpopup/promotion/send_email_logged_in', ScopeInterface::SCOPE_STORE, '2')
-            ->willReturn(false);
-
-        $this->assertFalse($this->buildModel()->isEmailToLoggedInEnabled('2'));
-    }
-
     /**
      * All remaining getters are identically-shaped string passthroughs over
      * scopeConfig->getValue() at store scope — verified together so each path
@@ -91,11 +81,16 @@ class ConfigTest extends TestCase
             'getButtonColor'         => 'exitintentpopup/general/button_color',
             'getButtonTextColor'     => 'exitintentpopup/general/button_text_color',
             'getCopyButtonText'      => 'exitintentpopup/promotion/copy_button_text',
+            'getApplyButtonText'     => 'exitintentpopup/promotion/apply_button_text',
             'getPopupHeading'        => 'exitintentpopup/content/popup_heading',
             'getPopupDescription'    => 'exitintentpopup/content/popup_description',
             'getDiscountLabel'       => 'exitintentpopup/content/discount_label',
-            'getCtaButtonText'       => 'exitintentpopup/content/cta_button_text',
-            'getSecondaryButtonText' => 'exitintentpopup/content/secondary_button_text',
+            'getCloseButtonText'     => 'exitintentpopup/content/close_button_text',
+            'getLoginPromptFrequency' => 'exitintentpopup/login_prompt/frequency',
+            'getLoginPromptHeading'  => 'exitintentpopup/login_prompt/heading',
+            'getLoginPromptMessage'  => 'exitintentpopup/login_prompt/message',
+            'getLoginButtonText'     => 'exitintentpopup/login_prompt/login_button_text',
+            'getRegisterLinkText'    => 'exitintentpopup/login_prompt/register_link_text',
         ];
 
         foreach ($cases as $method => $expectedPath) {

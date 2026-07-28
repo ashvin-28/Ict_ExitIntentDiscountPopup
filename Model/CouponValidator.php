@@ -11,11 +11,22 @@ use Magento\SalesRule\Model\Rule;
 
 class CouponValidator
 {
+    /**
+     * @param RuleRepositoryInterface $ruleRepository
+     * @param TimezoneInterface $timezone
+     */
     public function __construct(
         private readonly RuleRepositoryInterface $ruleRepository,
         private readonly TimezoneInterface $timezone
-    ) {}
+    ) {
+    }
 
+    /**
+     * Check whether the given Cart Price Rule is a currently-valid Specific Coupon Code rule.
+     *
+     * @param int $ruleId
+     * @return bool
+     */
     public function isValid(int $ruleId): bool
     {
         try {
@@ -41,6 +52,13 @@ class CouponValidator
         return $this->isWithinDateRange($rule->getFromDate(), $rule->getToDate());
     }
 
+    /**
+     * Check whether "now" falls within the given from/to date range.
+     *
+     * @param string|null $fromDate
+     * @param string|null $toDate
+     * @return bool
+     */
     private function isWithinDateRange(?string $fromDate, ?string $toDate): bool
     {
         $now = $this->timezone->date();

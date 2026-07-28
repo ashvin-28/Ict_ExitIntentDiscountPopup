@@ -40,6 +40,7 @@ class CheckGuestUsageTest extends TestCase
     /** @var Json|MockObject */
     private $jsonResult;
 
+    /** @var CheckGuestUsage */
     private CheckGuestUsage $controller;
 
     protected function setUp(): void

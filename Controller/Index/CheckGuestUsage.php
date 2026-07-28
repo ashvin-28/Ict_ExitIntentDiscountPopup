@@ -16,6 +16,14 @@ use Psr\Log\LoggerInterface;
 
 class CheckGuestUsage implements HttpPostActionInterface, CsrfAwareActionInterface
 {
+    /**
+     * @param RequestInterface $request
+     * @param JsonFactory $jsonFactory
+     * @param CustomerSession $customerSession
+     * @param Config $config
+     * @param GuestCouponUsage $guestCouponUsage
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         private readonly RequestInterface $request,
         private readonly JsonFactory      $jsonFactory,
@@ -23,18 +31,28 @@ class CheckGuestUsage implements HttpPostActionInterface, CsrfAwareActionInterfa
         private readonly Config           $config,
         private readonly GuestCouponUsage $guestCouponUsage,
         private readonly LoggerInterface  $logger
-    ) {}
+    ) {
+    }
 
+    /**
+     * @inheritDoc
+     */
     public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
     {
         return null;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function execute()
     {
         $result = $this->jsonFactory->create();

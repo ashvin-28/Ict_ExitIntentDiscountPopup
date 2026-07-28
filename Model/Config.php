@@ -13,15 +13,27 @@ class Config
     private const XML_PREFIX = 'exitintentpopup/';
 
     // Group paths
-    private const XML_GENERAL   = self::XML_PREFIX . 'general/';
-    private const XML_PROMOTION = self::XML_PREFIX . 'promotion/';
-    private const XML_CONTENT   = self::XML_PREFIX . 'content/';
+    private const XML_GENERAL     = self::XML_PREFIX . 'general/';
+    private const XML_PROMOTION   = self::XML_PREFIX . 'promotion/';
+    private const XML_CONTENT     = self::XML_PREFIX . 'content/';
+    private const XML_LOGIN_PROMPT = self::XML_PREFIX . 'login_prompt/';
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
         private readonly ScopeConfigInterface  $scopeConfig,
         private readonly StoreManagerInterface $storeManager
-    ) {}
+    ) {
+    }
 
+    /**
+     * Resolve the store scope code, falling back to the current store when none is given.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     private function resolveStore(?string $scopeCode): string
     {
         return $scopeCode ?? (string) $this->storeManager->getStore()->getId();
@@ -31,6 +43,12 @@ class Config
     // General
     // -------------------------------------------------------------------------
 
+    /**
+     * Check whether the popup is enabled.
+     *
+     * @param string|null $scopeCode
+     * @return bool
+     */
     public function isEnabled(?string $scopeCode = null): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -40,6 +58,12 @@ class Config
         );
     }
 
+    /**
+     * Get the mobile inactivity delay, in milliseconds.
+     *
+     * @param string|null $scopeCode
+     * @return int
+     */
     public function getMobileDelay(?string $scopeCode = null): int
     {
         return (int) $this->scopeConfig->getValue(
@@ -49,6 +73,12 @@ class Config
         );
     }
 
+    /**
+     * Get the configured popup display frequency.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getPopupFrequency(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -58,6 +88,12 @@ class Config
         );
     }
 
+    /**
+     * Get the popup background color.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getBackgroundColor(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -67,6 +103,12 @@ class Config
         );
     }
 
+    /**
+     * Get the popup font color.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getFontColor(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -76,6 +118,12 @@ class Config
         );
     }
 
+    /**
+     * Get the popup button color.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getButtonColor(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -85,6 +133,12 @@ class Config
         );
     }
 
+    /**
+     * Get the popup button text color.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getButtonTextColor(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -98,6 +152,11 @@ class Config
     // Promotion
     // -------------------------------------------------------------------------
 
+    /**
+     * Get the configured Cart Price Rule ID.
+     *
+     * @return int
+     */
     public function getCouponRuleId(): int
     {
         // coupon_rule_id is showInWebsite="0" showInStore="0" — global-only field.
@@ -107,6 +166,12 @@ class Config
         );
     }
 
+    /**
+     * Get the copy-to-clipboard button text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getCopyButtonText(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -116,10 +181,16 @@ class Config
         );
     }
 
-    public function isEmailToLoggedInEnabled(?string $scopeCode = null): bool
+    /**
+     * Get the apply-to-cart button text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getApplyButtonText(?string $scopeCode = null): string
     {
-        return $this->scopeConfig->isSetFlag(
-            self::XML_PROMOTION . 'send_email_logged_in',
+        return (string) $this->scopeConfig->getValue(
+            self::XML_PROMOTION . 'apply_button_text',
             ScopeInterface::SCOPE_STORE,
             $this->resolveStore($scopeCode)
         );
@@ -129,6 +200,12 @@ class Config
     // Content
     // -------------------------------------------------------------------------
 
+    /**
+     * Get the popup heading text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getPopupHeading(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -138,6 +215,12 @@ class Config
         );
     }
 
+    /**
+     * Get the popup description text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getPopupDescription(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -147,6 +230,12 @@ class Config
         );
     }
 
+    /**
+     * Get the discount label text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
     public function getDiscountLabel(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
@@ -156,19 +245,95 @@ class Config
         );
     }
 
-    public function getCtaButtonText(?string $scopeCode = null): string
+    /**
+     * Get the close button text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getCloseButtonText(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
-            self::XML_CONTENT . 'cta_button_text',
+            self::XML_CONTENT . 'close_button_text',
             ScopeInterface::SCOPE_STORE,
             $this->resolveStore($scopeCode)
         );
     }
 
-    public function getSecondaryButtonText(?string $scopeCode = null): string
+    // -------------------------------------------------------------------------
+    // Login Prompt
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get the configured login prompt display frequency.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getLoginPromptFrequency(?string $scopeCode = null): string
     {
         return (string) $this->scopeConfig->getValue(
-            self::XML_CONTENT . 'secondary_button_text',
+            self::XML_LOGIN_PROMPT . 'frequency',
+            ScopeInterface::SCOPE_STORE,
+            $this->resolveStore($scopeCode)
+        );
+    }
+
+    /**
+     * Get the login prompt heading text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getLoginPromptHeading(?string $scopeCode = null): string
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XML_LOGIN_PROMPT . 'heading',
+            ScopeInterface::SCOPE_STORE,
+            $this->resolveStore($scopeCode)
+        );
+    }
+
+    /**
+     * Get the login prompt message text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getLoginPromptMessage(?string $scopeCode = null): string
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XML_LOGIN_PROMPT . 'message',
+            ScopeInterface::SCOPE_STORE,
+            $this->resolveStore($scopeCode)
+        );
+    }
+
+    /**
+     * Get the login button text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getLoginButtonText(?string $scopeCode = null): string
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XML_LOGIN_PROMPT . 'login_button_text',
+            ScopeInterface::SCOPE_STORE,
+            $this->resolveStore($scopeCode)
+        );
+    }
+
+    /**
+     * Get the register link text.
+     *
+     * @param string|null $scopeCode
+     * @return string
+     */
+    public function getRegisterLinkText(?string $scopeCode = null): string
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XML_LOGIN_PROMPT . 'register_link_text',
             ScopeInterface::SCOPE_STORE,
             $this->resolveStore($scopeCode)
         );

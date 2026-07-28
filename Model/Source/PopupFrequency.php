@@ -8,6 +8,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class PopupFrequency implements OptionSourceInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function toOptionArray(): array
     {
         return [

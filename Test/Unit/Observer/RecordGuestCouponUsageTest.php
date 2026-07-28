@@ -32,6 +32,7 @@ class RecordGuestCouponUsageTest extends TestCase
     /** @var LoggerInterface|MockObject */
     private $logger;
 
+    /** @var RecordGuestCouponUsage */
     private RecordGuestCouponUsage $observerModel;
 
     protected function setUp(): void

@@ -8,12 +8,26 @@ use Ict\ExitIntentDiscountPopup\Model\ResourceModel\GuestCouponUsage;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Customer\Model\Url as CustomerUrl;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Url\EncoderInterface;
+use Magento\Framework\UrlInterface;
 use Magento\SalesRule\Model\RuleFactory;
 
 class ConfigProvider implements ConfigProviderInterface
 {
+    /**
+     * @param Config $config
+     * @param CouponValidator $couponValidator
+     * @param RuleFactory $ruleFactory
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param ResourceConnection $resource
+     * @param GuestCouponUsage $guestCouponUsage
+     * @param UrlInterface $urlBuilder
+     * @param EncoderInterface $urlEncoder
+     */
     public function __construct(
         private readonly Config              $config,
         private readonly CouponValidator     $couponValidator,
@@ -21,9 +35,17 @@ class ConfigProvider implements ConfigProviderInterface
         private readonly CustomerSession     $customerSession,
         private readonly CheckoutSession     $checkoutSession,
         private readonly ResourceConnection  $resource,
-        private readonly GuestCouponUsage    $guestCouponUsage
-    ) {}
+        private readonly GuestCouponUsage    $guestCouponUsage,
+        private readonly UrlInterface        $urlBuilder,
+        private readonly EncoderInterface    $urlEncoder
+    ) {
+    }
 
+    /**
+     * Build the exit-intent popup checkout config.
+     *
+     * @return array
+     */
     public function getConfig(): array
     {
         $ruleId  = $this->config->getCouponRuleId();
@@ -39,6 +61,7 @@ class ConfigProvider implements ConfigProviderInterface
         return [
             'exitIntentPopup' => [
                 'enabled'             => $this->config->isEnabled() && $isValid && $couponCode !== null,
+                'isLoggedIn'          => $this->customerSession->isLoggedIn(),
                 'mobileDelay'         => $this->config->getMobileDelay(),
                 'popupFrequency'      => $this->config->getPopupFrequency(),
                 'colors'              => [
@@ -50,28 +73,61 @@ class ConfigProvider implements ConfigProviderInterface
                 'ruleId'              => $ruleId,
                 'couponCode'          => $couponCode,
                 'copyButtonText'      => $this->config->getCopyButtonText(),
+                'applyButtonText'     => $this->config->getApplyButtonText(),
                 'popupHeading'        => $this->config->getPopupHeading(),
                 'popupDescription'    => $this->config->getPopupDescription(),
                 'discountLabel'       => $this->config->getDiscountLabel(),
-                'ctaButtonText'       => $this->config->getCtaButtonText(),
-                'secondaryButtonText' => $this->config->getSecondaryButtonText(),
+                'closeButtonText'     => $this->config->getCloseButtonText(),
+                'loginPrompt'         => [
+                    'frequency'        => $this->config->getLoginPromptFrequency(),
+                    'heading'          => $this->config->getLoginPromptHeading(),
+                    'message'          => $this->config->getLoginPromptMessage(),
+                    'loginButtonText'  => $this->config->getLoginButtonText(),
+                    'registerLinkText' => $this->config->getRegisterLinkText(),
+                    'loginUrl'         => $this->buildAccountUrl('customer/account/login'),
+                    'registerUrl'      => $this->buildAccountUrl('customer/account/create'),
+                ],
                 'i18n'                => [
-                    'badgeLabel'               => (string) __('Limited Offer'),
-                    'copyConfirmText'          => (string) __('Coupon code copied!'),
-                    'closeAriaLabel'           => (string) __('Close popup'),
-                    'couponAriaLabel'          => (string) __('Discount coupon code'),
-                    'copyAriaLabel'            => (string) __('Copy coupon code to clipboard'),
-                    'placeOrderAriaLabel'      => (string) __('Place your order now'),
-                    'continueShoppingAriaLabel' => (string) __('Continue shopping'),
+                    'badgeLabel'            => (string) __('Limited Offer'),
+                    'copyConfirmText'       => (string) __('Coupon code copied!'),
+                    'closeAriaLabel'        => (string) __('Close popup'),
+                    'couponAriaLabel'       => (string) __('Discount coupon code'),
+                    'copyAriaLabel'         => (string) __('Copy coupon code to clipboard'),
+                    'applyAriaLabel'        => (string) __('Apply coupon code to cart'),
+                    'applyConfirmText'      => (string) __('Coupon applied!'),
+                    'applyGenericErrorText' => (string) __('Unable to apply this coupon code. Please try again.'),
                 ],
             ],
         ];
+    }
+
+    /**
+     * Build a customer account URL carrying the current checkout page as its
+     * encoded referer, so a successful login or registration redirects the
+     * guest back to checkout (see Observer\SetLoginReferrerUrl).
+     *
+     * @param string $route
+     * @return string
+     */
+    private function buildAccountUrl(string $route): string
+    {
+        $checkoutUrl = $this->urlBuilder->getUrl('checkout', ['_secure' => true]);
+
+        return $this->urlBuilder->getUrl($route, [
+            CustomerUrl::REFERER_QUERY_PARAM_NAME => $this->urlEncoder->encode($checkoutUrl),
+        ]);
     }
 
     // -------------------------------------------------------------------------
     // Redemption gate — returns true if the coupon has already been used
     // -------------------------------------------------------------------------
 
+    /**
+     * Check whether the coupon has already been redeemed by the current customer or guest.
+     *
+     * @param int $ruleId
+     * @return bool
+     */
     private function couponAlreadyRedeemed(int $ruleId): bool
     {
         if ($this->customerSession->isLoggedIn()) {
@@ -82,8 +138,13 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * Logged-in: query native salesrule_coupon_usage joined to salesrule_coupon
+     * Check native coupon usage for the logged-in customer.
+     *
+     * Queries native salesrule_coupon_usage joined to salesrule_coupon
      * to find a times_used >= 1 record for this customer + rule.
+     *
+     * @param int $ruleId
+     * @return bool
      */
     private function loggedInCustomerHasRedeemed(int $ruleId): bool
     {
@@ -108,9 +169,13 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * Guest: check the custom table using the quote's email address.
-     * If no email is available yet (before shipping step), returns false
+     * Check guest coupon usage via the quote's email address.
+     *
+     * If no email is available yet (before the shipping step), returns false
      * so the popup is not suppressed prematurely.
+     *
+     * @param int $ruleId
+     * @return bool
      */
     private function guestHasRedeemed(int $ruleId): bool
     {
@@ -129,6 +194,12 @@ class ConfigProvider implements ConfigProviderInterface
 
     // -------------------------------------------------------------------------
 
+    /**
+     * Resolve the coupon code for the given rule.
+     *
+     * @param int $ruleId
+     * @return string|null
+     */
     private function resolveCouponCode(int $ruleId): ?string
     {
         try {
