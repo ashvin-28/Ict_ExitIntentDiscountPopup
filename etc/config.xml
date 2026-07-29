@@ -24,7 +24,7 @@
                 <close_button_text>No Thanks</close_button_text>
             </content>
             <login_prompt>
-                <frequency>once_per_session</frequency>
+                <frequency>always</frequency>
                 <heading>Unlock Your Exclusive Discount</heading>
                 <message>Login to unlock your exclusive discount on this purchase.</message>
                 <login_button_text>Login</login_button_text>

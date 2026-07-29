@@ -10,4 +10,10 @@
         <observer name="ict_exitintent_set_login_referrer_url"
                   instance="Ict\ExitIntentDiscountPopup\Observer\SetLoginReferrerUrl"/>
     </event>
+
+    <!-- Only commit the stashed referer once authentication has actually succeeded. -->
+    <event name="customer_login">
+        <observer name="ict_exitintent_apply_login_referrer_url"
+                  instance="Ict\ExitIntentDiscountPopup\Observer\ApplyLoginReferrerUrl"/>
+    </event>
 </config>

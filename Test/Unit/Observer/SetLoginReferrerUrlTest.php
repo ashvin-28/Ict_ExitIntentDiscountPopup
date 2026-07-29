@@ -30,7 +30,12 @@ class SetLoginReferrerUrlTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customerSession = $this->createMock(CustomerSession::class);
+        // setData() is a magic (__call) method on Session, not a declared
+        // one — addMethods() is required to mock it.
+        $this->customerSession = $this->getMockBuilder(CustomerSession::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['setData'])
+            ->getMock();
         $this->urlDecoder      = $this->createMock(DecoderInterface::class);
         $this->hostChecker     = $this->createMock(HostChecker::class);
 
@@ -65,29 +70,29 @@ class SetLoginReferrerUrlTest extends TestCase
 
     public function testDoesNothingWhenNoRefererParamPresent(): void
     {
-        $this->customerSession->expects($this->never())->method('setBeforeAuthUrl');
+        $this->customerSession->expects($this->never())->method('setData');
 
         $this->observerModel->execute($this->mockObserverWithReferer(null));
     }
 
-    public function testSetsBeforeAuthUrlWhenRefererIsOwnOrigin(): void
+    public function testStashesRefererWhenItIsOwnOrigin(): void
     {
         $this->urlDecoder->method('decode')->with('ENCODED')->willReturn('https://example.com/checkout/');
         $this->hostChecker->method('isOwnOrigin')->with('https://example.com/checkout/')->willReturn(true);
 
         $this->customerSession->expects($this->once())
-            ->method('setBeforeAuthUrl')
-            ->with('https://example.com/checkout/');
+            ->method('setData')
+            ->with(SetLoginReferrerUrl::SESSION_KEY, 'https://example.com/checkout/');
 
         $this->observerModel->execute($this->mockObserverWithReferer('ENCODED'));
     }
 
-    public function testDoesNotSetBeforeAuthUrlForAForeignHostReferer(): void
+    public function testDoesNotStashAForeignHostReferer(): void
     {
         $this->urlDecoder->method('decode')->with('ENCODED')->willReturn('https://evil.example/phish');
         $this->hostChecker->method('isOwnOrigin')->with('https://evil.example/phish')->willReturn(false);
 
-        $this->customerSession->expects($this->never())->method('setBeforeAuthUrl');
+        $this->customerSession->expects($this->never())->method('setData');
 
         $this->observerModel->execute($this->mockObserverWithReferer('ENCODED'));
     }
