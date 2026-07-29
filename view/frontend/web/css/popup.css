@@ -1,357 +1,376 @@
 /* Exit Intent Discount Popup */
 
 :root {
-    --eip-blue: #1979c3;
-    --eip-blue-hover: #006bb4;
-    --eip-border: #d6d6d6;
-    --eip-border-light: #ededed;
-    --eip-text: #303030;
-    --eip-muted: #6f7680;
-    --eip-panel: #f8f8f8;
-    --eip-header: #e8f5ff;
-    --eip-header-strong: #d8edfb;
-    --eip-radius: 6px;
-    --eip-shadow: 0 2px 8px rgba(0, 0, 0, 0.24), 0 18px 42px rgba(0, 0, 0, 0.18);
-    --eip-overlay-z: 9999;
-    --eip-transition: 0.18s ease;
+  --eip-blue: #1979c3;
+  --eip-blue-hover: #006bb4;
+  --eip-border: #d6d6d6;
+  --eip-border-light: #ededed;
+  --eip-text: #303030;
+  --eip-muted: #6f7680;
+  --eip-panel: #f8f8f8;
+  --eip-header: #e8f5ff;
+  --eip-header-strong: #d8edfb;
+  --eip-radius: 6px;
+  --eip-shadow: 0 2px 8px rgba(0, 0, 0, 0.24), 0 18px 42px rgba(0, 0, 0, 0.18);
+  --eip-overlay-z: 9999;
+  --eip-transition: 0.18s ease;
 }
 
 .exit-intent-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 24px;
-    background: rgba(0, 0, 0, 0.56);
-    z-index: var(--eip-overlay-z);
-    animation: eipFadeIn var(--eip-transition) forwards;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.56);
+  z-index: var(--eip-overlay-z);
+  animation: eipFadeIn var(--eip-transition) forwards;
 }
 
 @keyframes eipFadeIn {
-    from {
-        opacity: 0;
-    }
+  from {
+    opacity: 0;
+  }
 
-    to {
-        opacity: 1;
-    }
+  to {
+    opacity: 1;
+  }
 }
 
 .exit-intent-popup {
-    position: relative;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 676px;
-    max-height: calc(100vh - 48px);
-    overflow: auto;
-    padding: 32px 40px 34px;
-    border: 1px solid rgba(0, 0, 0, 0.14);
-    border-radius: var(--eip-radius);
-    background: #fff;
-    color: var(--eip-text);
-    box-shadow: var(--eip-shadow);
-    text-align: left;
-    animation: eipModalIn var(--eip-transition) forwards;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 676px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 32px 40px 34px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: var(--eip-radius);
+  background: #fff;
+  color: var(--eip-text);
+  box-shadow: var(--eip-shadow);
+  text-align: left;
+  animation: eipModalIn var(--eip-transition) forwards;
 }
 
 @keyframes eipModalIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .exit-intent-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: #777;
-    cursor: pointer;
-    font-size: 24px;
-    font-weight: 300;
-    line-height: 1;
-    opacity: 1;
-    transition: color var(--eip-transition), background var(--eip-transition);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+  opacity: 1;
+  transition:
+    color var(--eip-transition),
+    background var(--eip-transition);
 }
 
 .exit-intent-close:hover,
 .exit-intent-close:focus {
-    background: #f4f4f4;
-    color: #333;
-    outline: none;
+  background: #f4f4f4;
+  color: #333;
+  outline: none;
 }
 
 .exit-intent-hero {
-    margin: 0 0 26px;
-    padding: 17px 19px 18px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--eip-header), var(--eip-header-strong));
+  margin: 0 0 26px;
+  padding: 17px 19px 18px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--eip-header),
+    var(--eip-header-strong)
+  );
 }
 
 .exit-intent-badge {
-    display: block;
-    margin: 0 0 6px;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    color: #006bb4;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-transform: uppercase;
+  display: block;
+  margin: 0 0 6px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #006bb4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .exit-intent-heading {
-    margin: 0 34px 4px 0;
-    color: var(--eip-text);
-    font-size: 22px;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.2;
+  margin: 0 34px 4px 0;
+  color: var(--eip-text);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.2;
 }
 
 .exit-intent-description {
-    max-width: 560px;
-    margin: 0;
-    color: var(--eip-muted);
-    font-size: 12px;
-    line-height: 1.45;
+  max-width: 560px;
+  margin: 0;
+  color: var(--eip-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .exit-intent-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
 }
 
 .exit-intent-body-login-prompt {
-    max-width: 320px;
-    margin: 0 auto;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 .exit-intent-coupon-block {
-    min-width: 0;
-    margin: 0;
-    padding: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .exit-intent-discount-label {
-    margin: 0 0 10px;
-    color: var(--eip-text);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.35;
-    text-transform: none;
+  margin: 0 0 10px;
+  color: var(--eip-text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .exit-intent-coupon-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    min-height: 46px;
-    border: 1px solid #adadad;
-    border-radius: 4px;
-    background: #fff;
-    overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  min-height: 46px;
+  border: 1px solid #adadad;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
 }
 
 .exit-intent-coupon-code {
-    min-width: 0;
-    width: 100%;
-    height: 100% !important;
-    box-sizing: border-box;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 0;
-    background: var(--eip-panel);
-    color: #555;
-    cursor: default;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 44px;
-    outline: none;
-    text-align: center;
+  min-width: 0;
+  width: 100%;
+  height: 100% !important;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  background: var(--eip-panel);
+  color: #555;
+  cursor: default;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 44px;
+  outline: none;
+  text-align: center;
 }
 
 .exit-intent-copy-btn {
-    min-width: 94px;
-    min-height: 44px;
-    padding: 0 15px;
-    border: 0;
-    border-left: 1px solid #adadad;
-    border-radius: 0;
-    background: #fff;
-    color: var(--eip-blue);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-align: center;
-    transition: background var(--eip-transition), color var(--eip-transition);
-    white-space: nowrap;
+  min-width: 94px;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 0;
+  border-left: 1px solid #adadad;
+  border-radius: 0;
+  background: #fff;
+  color: var(--eip-blue);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-align: center;
+  transition:
+    background var(--eip-transition),
+    color var(--eip-transition);
+  white-space: nowrap;
 }
 
 .exit-intent-copy-btn:hover,
 .exit-intent-copy-btn:focus {
-    background: #f4f8fb;
-    color: var(--eip-blue-hover);
-    outline: none;
+  background: #f4f8fb;
+  color: var(--eip-blue-hover);
+  outline: none;
 }
 
 .exit-intent-apply-btn {
-    min-width: 100px;
-    min-height: 44px;
-    padding: 0 15px;
-    border: 0;
-    border-left: 1px solid rgba(0, 0, 0, 0.14);
-    border-radius: 0;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-align: center;
-    transition: opacity var(--eip-transition);
-    white-space: nowrap;
+  min-width: 100px;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 0;
+  border-left: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-align: center;
+  transition: opacity var(--eip-transition);
+  white-space: nowrap;
 }
 
 .exit-intent-apply-btn:hover,
 .exit-intent-apply-btn:focus {
-    opacity: 0.9;
-    outline: none;
+  opacity: 0.9;
+  outline: none;
 }
 
 .exit-intent-copy-confirm,
 .exit-intent-apply-confirm {
-    margin: 9px 0 0;
-    color: #2f7d32;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.35;
+  margin: 9px 0 0;
+  color: #2f7d32;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .exit-intent-apply-error {
-    margin: 9px 0 0;
-    color: #d13232;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.35;
+  margin: 9px 0 0;
+  color: #d13232;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .exit-intent-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
 }
 
 .exit-intent-cta-btn,
 .exit-intent-secondary-btn {
-    width: 100%;
-    min-height: 40px;
-    box-sizing: border-box;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-align: center;
-    transition: background var(--eip-transition), border-color var(--eip-transition), color var(--eip-transition);
+  width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-align: center;
+  transition:
+    background var(--eip-transition),
+    border-color var(--eip-transition),
+    color var(--eip-transition);
 }
 
 .exit-intent-cta-btn {
-    padding: 10px 18px;
-    border: 1px solid var(--eip-blue);
-    background: var(--eip-blue);
-    color: #fff;
-    box-shadow: none;
+  padding: 10px 18px;
+  border: 1px solid var(--eip-blue);
+  background: var(--eip-blue);
+  color: #fff;
+  box-shadow: none;
 }
 
 .exit-intent-cta-btn:hover,
 .exit-intent-cta-btn:focus {
-    border-color: var(--eip-blue-hover);
-    background: var(--eip-blue-hover);
-    color: #fff;
-    outline: none;
+  border-color: var(--eip-blue-hover);
+  background: var(--eip-blue-hover);
+  color: #fff;
+  outline: none;
 }
 
 .exit-intent-secondary-btn {
-    padding: 10px 16px;
-    border: 1px solid #c2c2c2;
-    background: #fff;
-    color: #333;
-    opacity: 1;
+  padding: 10px 16px;
+  border: 1px solid #c2c2c2;
+  background: #fff;
+  color: #333;
+  opacity: 1;
 }
 
 .exit-intent-secondary-btn:hover,
 .exit-intent-secondary-btn:focus {
-    border-color: #999;
-    background: #f7f7f7;
-    color: #222;
-    opacity: 1;
-    outline: none;
+  border-color: #999;
+  background: #f7f7f7;
+  color: #222;
+  opacity: 1;
+  outline: none;
 }
 
 @media (max-width: 720px) {
-    .exit-intent-popup {
-        max-width: 540px;
-        padding: 28px 24px 26px;
-    }
+  .exit-intent-popup {
+    max-width: 540px;
+    padding: 28px 24px 26px;
+  }
 
-    .exit-intent-actions {
-        gap: 10px;
-    }
+  .exit-intent-actions {
+    gap: 10px;
+  }
 }
 
 @media (max-width: 480px) {
-    .exit-intent-overlay {
-        padding: 16px;
-    }
+  .exit-intent-overlay {
+    padding: 16px;
+  }
 
-    .exit-intent-popup {
-        max-height: calc(100vh - 32px);
-        padding: 24px 18px 20px;
-    }
+  .exit-intent-popup {
+    max-height: calc(100vh - 32px);
+    padding: 24px 18px 20px;
+  }
 
-    .exit-intent-hero {
-        margin-bottom: 22px;
-        padding: 16px;
-    }
+  .exit-intent-hero {
+    margin-bottom: 22px;
+    padding: 16px;
+  }
 
-    .exit-intent-heading {
-        margin-right: 24px;
-        font-size: 20px;
-    }
+  .exit-intent-close {
+    top: -2px;
+    right: -4px;
+  }
 
-    .exit-intent-coupon-row {
-        grid-template-columns: 1fr;
-    }
+  .exit-intent-heading {
+    /* Clears the close button's actual footprint (8px offset + 32px
+           width) — the desktop margin-right alone is too narrow here and
+           lets the heading text run underneath the button. */
+    margin-right: 44px;
+    font-size: 20px;
+  }
 
-    .exit-intent-copy-btn,
-    .exit-intent-apply-btn {
-        width: 100%;
-        border-top: 1px solid #adadad;
-        border-left: 0;
-    }
+  .exit-intent-coupon-row {
+    grid-template-columns: 1fr;
+  }
+
+  .exit-intent-copy-btn,
+  .exit-intent-apply-btn {
+    width: 100%;
+    border-top: 1px solid #adadad;
+    border-left: 0;
+  }
 }
